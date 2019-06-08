@@ -1,5 +1,14 @@
 package br.com.productcatalog
 
-import android.app.Application
+import br.com.productcatalog.library.injection.DaggerAppComponent
+import dagger.android.AndroidInjector
+import dagger.android.DaggerApplication
 
-class ProductCatalogApplication : Application()
+class ProductCatalogApplication : DaggerApplication() {
+
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+        return DaggerAppComponent.builder()
+            .application(this)
+            .build()
+    }
+}

@@ -1,13 +1,12 @@
 package br.com.productcatalog.screens.splash
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import br.com.productcatalog.R
+import br.com.productcatalog.screens.BaseActivity
+import br.com.productcatalog.screens.BaseUi
 
-class SplashActivity : AppCompatActivity() {
+interface SplashUi : BaseUi
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
-    }
+class SplashActivity : BaseActivity<SplashPresenter>(), SplashUi {
+
+    override val layoutRes: Int? = R.layout.activity_splash
 }

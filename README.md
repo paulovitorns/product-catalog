@@ -28,8 +28,8 @@ the `master` branch. Run this task to check the latest version `./gradlew versio
 
 ## Dependency Injection
 
-[Dagger](https://google.github.io/dagger/) is the tool who help us here. It is a fully static, 
-compile-time dependency injection framework for both Java and Android. Take at look 
+[Dagger](https://google.github.io/dagger/) is the tool who help us here. It is a fully static, compile-time dependency injection framework for both Java and Android. 
+Take at look [here](https://google.github.io/dagger/android.html) if you want to learn more. 
 
 ## Code Style
 
