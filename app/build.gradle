@@ -6,8 +6,8 @@ plugins {
     id 'kotlinx-serialization'
 }
 
-apply from: './buildConfig/version.gradle'
-apply from: './buildConfig/lint.gradle'
+apply from: '../config/version.gradle'
+apply from: '../config/lint.gradle'
 
 android {
     compileSdkVersion 28
