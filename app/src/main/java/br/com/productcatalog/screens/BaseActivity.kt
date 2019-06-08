@@ -21,29 +21,9 @@ abstract class BaseActivity<T : BasePresenter<BaseUi>> : DaggerActivity(), BaseU
         presenter.onCreate()
     }
 
-    override fun onStart() {
-        super.onStart()
-        presenter.onStart()
-    }
-
     override fun onRestart() {
         super.onRestart()
         presenter.setUi(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        presenter.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        presenter.onPause()
-    }
-
-    override fun onStop() {
-        presenter.onStop()
-        super.onStop()
     }
 
     override fun onDestroy() {

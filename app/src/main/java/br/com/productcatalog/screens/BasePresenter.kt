@@ -1,8 +1,14 @@
 package br.com.productcatalog.screens
 
+import br.com.productcatalog.library.reactivex.DisposeBag
+import javax.inject.Inject
+
 abstract class BasePresenter<T : BaseUi> {
 
     private var ui: T? = null
+
+    @Inject
+    lateinit var disposeBag: DisposeBag
 
     fun setUi(ui: T?) {
         this.ui = ui
@@ -13,15 +19,8 @@ abstract class BasePresenter<T : BaseUi> {
 
     open fun onCreate() {}
 
-    open fun onStart() {}
-
-    open fun onResume() {}
-
-    open fun onPause() {}
-
-    open fun onStop() {}
-
     open fun onDestroy() {
+        disposeBag.dispose()
         ui = null
     }
 }
