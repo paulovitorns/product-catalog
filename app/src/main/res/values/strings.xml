@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Product Catalog</string>
+    <string name="dashboard_intro">Product Catalog</string>
+    <string name="dashboard_description">Search your favorite products from Mercado Livre.</string>
+    <string name="search_hint">Type some product name</string>
+    <string name="menu_search">Search</string>
 </resources>

@@ -1,7 +1,7 @@
 package br.com.productcatalog.library.injection.modules
 
 import br.com.productcatalog.library.injection.scope.ActivityScope
-import br.com.productcatalog.screens.splash.SplashActivity
+import br.com.productcatalog.screens.home.HomeActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -10,5 +10,5 @@ abstract class ActivityBindingModule {
 
     @ActivityScope
     @ContributesAndroidInjector
-    abstract fun splashActivity(): SplashActivity
+    abstract fun dashboardActivity(): HomeActivity
 }

@@ -1,12 +1,12 @@
 package br.com.productcatalog.screens
 
 import android.os.Bundle
-import dagger.android.DaggerActivity
+import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
 
 interface BaseUi
 
-abstract class BaseActivity<T : BasePresenter<BaseUi>> : DaggerActivity(), BaseUi {
+abstract class BaseActivity<T : BasePresenter<BaseUi>> : DaggerAppCompatActivity(), BaseUi {
 
     @Inject
     lateinit var presenter: T
@@ -16,6 +16,7 @@ abstract class BaseActivity<T : BasePresenter<BaseUi>> : DaggerActivity(), BaseU
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutRes?.let { setContentView(it) }
+        setupToolbar()
         setupViews()
         presenter.setUi(this)
         presenter.onCreate()
@@ -30,6 +31,8 @@ abstract class BaseActivity<T : BasePresenter<BaseUi>> : DaggerActivity(), BaseU
         presenter.onDestroy()
         super.onDestroy()
     }
+
+    open fun setupToolbar() {}
 
     open fun setupViews() {}
 }
