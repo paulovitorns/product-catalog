@@ -1,9 +1,11 @@
 package br.com.productcatalog.screens.home
 
+import android.content.Intent
 import android.widget.SearchView
 import br.com.productcatalog.R
 import br.com.productcatalog.screens.BaseActivity
 import br.com.productcatalog.screens.BaseUi
+import br.com.productcatalog.screens.search.SearchActivity
 import kotlinx.android.synthetic.main.home_layout.homeSearchView
 
 interface HomeUi : BaseUi {
@@ -28,6 +30,8 @@ class HomeActivity : BaseActivity<HomePresenter>(), HomeUi {
     }
 
     override fun openSearchScreen(query: String) {
-        // TODO:: call SearchActivity and pass the query parameter
+        Intent(this, SearchActivity::class.java).also {
+            startActivity(it)
+        }
     }
 }

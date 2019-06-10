@@ -32,6 +32,11 @@ abstract class BaseActivity<T : BasePresenter<BaseUi>> : DaggerAppCompatActivity
         super.onDestroy()
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        presenter.onSaveState()
+        super.onSaveInstanceState(outState)
+    }
+
     open fun setupToolbar() {}
 
     open fun setupViews() {}

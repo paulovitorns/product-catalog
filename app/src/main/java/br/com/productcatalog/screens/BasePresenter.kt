@@ -23,4 +23,6 @@ abstract class BasePresenter<T : BaseUi> {
         disposeBag.dispose()
         ui = null
     }
+
+    open fun onSaveState() {}
 }
