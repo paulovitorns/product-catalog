@@ -14,6 +14,6 @@ abstract class ActivityBindingModule {
     abstract fun dashboardActivity(): HomeActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [SearchModule::class])
     abstract fun searchActivity(): SearchActivity
 }

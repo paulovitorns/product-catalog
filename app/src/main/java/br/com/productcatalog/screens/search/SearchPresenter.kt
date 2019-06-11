@@ -2,6 +2,8 @@ package br.com.productcatalog.screens.search
 
 import androidx.annotation.VisibleForTesting
 import br.com.productcatalog.domain.network.NetworkConnectionUseCase
+import br.com.productcatalog.domain.search.MlbSearchProductUseCase
+import br.com.productcatalog.domain.search.PaginateResultUseCase
 import br.com.productcatalog.domain.search.SearchState
 import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.library.reactivex.addDisposableTo
@@ -14,7 +16,9 @@ import javax.inject.Inject
 @ActivityScope
 class SearchPresenter @Inject constructor(
     private val stateStore: StateStore,
-    private val networkConnection: NetworkConnectionUseCase
+    private val networkConnection: NetworkConnectionUseCase,
+    private val mlbSearchProduct: MlbSearchProductUseCase,
+    private val paginateResult: PaginateResultUseCase
 ) : BasePresenter<BaseUi>() {
 
     // this will help us to test and see if the presenter is receiving and process the first query string correctly
@@ -37,7 +41,6 @@ class SearchPresenter @Inject constructor(
     }
 
     private fun bindIntents() {
-
         val checkNetWorkConnection: Observable<SearchState> = networkConnection.invoke()
             .map { connectionMapper(it) }
 
