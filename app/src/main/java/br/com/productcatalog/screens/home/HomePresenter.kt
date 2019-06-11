@@ -21,7 +21,7 @@ class HomePresenter @Inject constructor(
         val cleanQueryString = cleanQueryStringUseCase(query)
 
         // store a new state to send to the search screen
-        stateStore.save(SearchUi::class, SearchState.StarterSearch(cleanQueryString))
+        stateStore.save(SearchUi::class, SearchState.SetFirstQueryString(cleanQueryString))
 
         homeUi?.openSearchScreen(cleanQueryString)
     }

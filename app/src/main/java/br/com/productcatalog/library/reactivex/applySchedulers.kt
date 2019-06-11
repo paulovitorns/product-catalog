@@ -10,12 +10,10 @@ import io.reactivex.ObservableTransformer
  * @return the transformed ObservableSource instance
  */
 fun <T> applyObservableSchedulers(schedulerProvider: SchedulerProvider): ObservableTransformer<T, T> {
-    return ObservableTransformer { single ->
-        single.flatMap {
-            Observable.just(it)
-                .subscribeOn(schedulerProvider.workerThread())
-                .observeOn(schedulerProvider.postWorkerThread())
-        }
+    return ObservableTransformer { observer ->
+        observer.flatMap { Observable.just(it) }
+            .subscribeOn(schedulerProvider.workerThread())
+            .observeOn(schedulerProvider.postWorkerThread())
     }
 }
 

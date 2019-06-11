@@ -44,4 +44,16 @@
         <item name="android:textColor">@color/brown</item>
     </style>
 
+    <style name="Button.BaseButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:fontFamily">"sans-serif-medium"</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Button.PrimaryButton" parent="Button.BaseButton">
+        <item name="backgroundTint">@color/violet</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
 </resources>

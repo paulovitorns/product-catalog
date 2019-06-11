@@ -4,4 +4,7 @@
     <string name="dashboard_description">Search your favorite products from Mercado Livre.</string>
     <string name="search_hint">Type some product name</string>
     <string name="menu_search">Search</string>
+    <string name="offline_title">Hmmm, you are offline!</string>
+    <string name="offline_description">Check you connection and try again.</string>
+    <string name="check_connection">Refresh</string>
 </resources>

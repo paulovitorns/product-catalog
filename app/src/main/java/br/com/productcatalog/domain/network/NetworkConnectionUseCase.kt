@@ -3,8 +3,8 @@ package br.com.productcatalog.domain.network
 import android.content.Context
 import br.com.productcatalog.library.extension.getConnectivityManager
 import br.com.productcatalog.library.reactivex.SchedulerProvider
-import br.com.productcatalog.library.reactivex.applyCompletableSchedulers
-import io.reactivex.Completable
+import br.com.productcatalog.library.reactivex.applyObservableSchedulers
+import io.reactivex.Observable
 import java.net.InetAddress
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -17,12 +17,10 @@ class NetworkConnectionUseCase @Inject constructor(
     private val pingUrl = "www.google.com"
     private val connectivityManager = context.getConnectivityManager()
 
-    operator fun invoke(): Completable {
-        return Completable.fromAction {
-            if (!isNetworkConnected() && !isInternetAvailable()) {
-                throw IllegalStateException("No valid network info is available")
-            }
-        }.compose(applyCompletableSchedulers(schedulerProvider))
+    operator fun invoke(): Observable<Boolean> {
+        return Observable.fromCallable {
+            isNetworkConnected() && isInternetAvailable()
+        }.compose(applyObservableSchedulers(schedulerProvider))
     }
 
     private fun isInternetAvailable(): Boolean {

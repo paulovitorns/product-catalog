@@ -1,10 +1,9 @@
 package br.com.productcatalog.domain.search
 
 sealed class SearchState {
-    object LoadingProducts : SearchState()
-    object NoNetworkConnection : SearchState()
-    object ApiError : SearchState()
-    object ProductNotFound : SearchState()
-    data class StarterSearch(val query: String) : SearchState()
-    data class PerformSearch(val query: String) : SearchState()
+    object Idle : SearchState()
+    object Loading : SearchState()
+    data class SetFirstQueryString(val queryString: String) : SearchState()
+    object NoConnection : SearchState()
+    object Online : SearchState()
 }
