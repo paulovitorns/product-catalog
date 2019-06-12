@@ -46,7 +46,7 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
 
     override val layoutRes: Int? = R.layout.search_layout
     private val linearLayoutManager by lazy { LinearLayoutManager(this) }
-    private val searchAdapter by lazy { SearchAdapter() }
+    private val searchAdapter by lazy { SearchAdapter(this) }
     private lateinit var searchResult: SearchResult
 
     override fun setupViews() {

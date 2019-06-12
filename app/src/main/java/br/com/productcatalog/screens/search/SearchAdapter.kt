@@ -1,5 +1,6 @@
 package br.com.productcatalog.screens.search
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.productcatalog.R
 import br.com.productcatalog.data.models.ProductResult
 import br.com.productcatalog.library.recyclerview.SimpleAdapter
+import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.search_item.view.description
 import kotlinx.android.synthetic.main.search_item.view.image
 import kotlinx.android.synthetic.main.search_item.view.installments
@@ -18,6 +20,7 @@ import kotlinx.android.synthetic.main.search_item.view.rate
 import kotlinx.android.synthetic.main.search_item.view.shipping
 
 class SearchAdapter(
+    private val context: Context,
     products: MutableList<ProductResult> = mutableListOf()
 ) : SimpleAdapter<ProductResult, SearchAdapter.ViewHolder>(products) {
 
@@ -36,6 +39,13 @@ class SearchAdapter(
             setupInstallments(this, item)
 
             shipping.isVisible = item.shipping != null && item.shipping.freeShipping
+
+            if (!item.thumbnail.isBlank()) {
+                Glide.with(context)
+                    .load(item.thumbnail)
+                    .into(image)
+                    .clearOnDetach()
+            }
         }
     }
 
