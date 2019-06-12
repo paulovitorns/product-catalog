@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import br.com.productcatalog.data.models.ProductResult
 import br.com.productcatalog.domain.search.SearchActionComposer
-import br.com.productcatalog.domain.search.SearchIntentMapper
 import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.library.reactivex.SchedulerProvider
 import br.com.productcatalog.library.reactivex.addDisposableTo
@@ -22,8 +21,7 @@ import javax.inject.Inject
 class SearchPresenter @Inject constructor(
     private val stateStore: StateStore,
     private val searchActionComposer: SearchActionComposer,
-    private val schedulerProvider: SchedulerProvider,
-    private val searchIntentMapper: SearchIntentMapper
+    private val schedulerProvider: SchedulerProvider
 ) : BasePresenter<BaseUi>() {
 
     // this will help us to test and see if the presenter is receiving and process the first query string correctly
@@ -31,11 +29,12 @@ class SearchPresenter @Inject constructor(
     var lastViewState: SearchViewState? = null
 
     private val searchUi: SearchUi? get() = baseUi()
-    private val publishSubject: PublishSubject<SearchIntent> = PublishSubject.create()
+    private val publishSubject: PublishSubject<SearchViewAction> = PublishSubject.create()
 
     override fun onCreate() {
         super.onCreate()
         retrieveQueryString()
+        setupPublisher()
         bindIntents()
     }
 
@@ -53,33 +52,11 @@ class SearchPresenter @Inject constructor(
         }
     }
 
-    private fun bindIntents() {
-
-        val searchViewIntent: Observable<SearchIntent> = searchUi?.search()!!
-            .debounce(500, TimeUnit.MILLISECONDS, schedulerProvider.workerThread())
-            .filter { typed -> typed.isNotEmpty() && typed.length > 1 }
-            .map { queryString -> SearchIntent.SearchProduct(queryString) }
-
-        val nextPage: Observable<SearchIntent> = searchUi?.loadNextPage()!!
-            .filter {
-                lastViewState != null && lastViewState is SearchViewState
-            }
-            .map { SearchIntent.LoadNextPage(lastViewState?.searchResult!!) }
-
-        val retryIntent: Observable<SearchIntent> = searchUi?.retryButton()!!
-            .filter { lastViewState != null && lastViewState is SearchViewState }
-            .map { SearchIntent.RestoreLastState(lastViewState!!) }
-
-        val allIntents: Observable<SearchIntent> = Observable.merge(
-            searchViewIntent,
-            nextPage,
-            retryIntent
-        )
+    private fun setupPublisher() {
 
         val initialState = SearchViewState()
 
         publishSubject
-            .map { searchIntentMapper actionOf it }
             .compose(searchActionComposer.bindActions())
             .compose(applyObservableSchedulers(schedulerProvider))
             .scan(initialState, this::viewStateReducer)
@@ -89,6 +66,30 @@ class SearchPresenter @Inject constructor(
             }, { error ->
                 Log.e("SEARCH", error.message)
             }).addDisposableTo(disposeBag)
+    }
+
+    private fun bindIntents() {
+
+        val searchViewIntent: Observable<SearchViewAction> = searchUi?.search()!!
+            .debounce(500, TimeUnit.MILLISECONDS, schedulerProvider.workerThread())
+            .filter { typed -> typed.isNotEmpty() && typed.length > 1 }
+            .map { queryString -> SearchViewAction.SearchProduct(queryString) }
+
+        val nextPage: Observable<SearchViewAction> = searchUi?.loadNextPage()!!
+            .filter {
+                lastViewState != null && lastViewState is SearchViewState
+            }
+            .map { SearchViewAction.LoadNextPage(lastViewState?.searchResult!!) }
+
+        val retryIntent: Observable<SearchViewAction> = searchUi?.retryButton()!!
+            .filter { lastViewState != null && lastViewState is SearchViewState }
+            .map { SearchViewAction.RestoreLastState(lastViewState!!) }
+
+        val allIntents: Observable<SearchViewAction> = Observable.merge(
+            searchViewIntent,
+            nextPage,
+            retryIntent
+        )
 
         allIntents.subscribe(publishSubject)
     }
