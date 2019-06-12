@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/gray97">
 
     <SearchView
         android:id="@+id/searchView"
@@ -13,6 +13,7 @@
         android:layout_height="?attr/actionBarSize"
         android:iconifiedByDefault="false"
         android:background="@color/orange"
+        android:elevation="4dp"
         android:queryHint="@string/search_hint"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,6 +35,18 @@
         android:visibility="gone"
         tools:visibility="visible"
         layout="@layout/offline_state"/>
+
+    <include
+        android:id="@+id/searchNotFound"
+        android:visibility="gone"
+        tools:visibility="visible"
+        layout="@layout/search_not_found_state"/>
+
+    <include
+        android:id="@+id/defaultError"
+        android:visibility="gone"
+        tools:visibility="visible"
+        layout="@layout/default_error_state"/>
 
     <ProgressBar
         android:id="@+id/progress"

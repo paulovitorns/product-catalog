@@ -12,6 +12,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import javax.inject.Inject
 
 class RetrofitFactory @Inject constructor() {
+
     /**
      * Provides a static function to build a new instance of retrofit.
      *

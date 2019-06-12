@@ -27,5 +27,5 @@ data class ProductResult(
     @SerialName("currency_id") val currency: String,
     val thumbnail: String,
     val installments: Installments?,
-    val shipping: Shipping
+    val shipping: Shipping?
 )

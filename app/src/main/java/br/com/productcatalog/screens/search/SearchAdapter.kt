@@ -1,0 +1,62 @@
+package br.com.productcatalog.screens.search
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.RecyclerView
+import br.com.productcatalog.R
+import br.com.productcatalog.data.models.ProductResult
+import br.com.productcatalog.library.recyclerview.SimpleAdapter
+import kotlinx.android.synthetic.main.search_item.view.description
+import kotlinx.android.synthetic.main.search_item.view.image
+import kotlinx.android.synthetic.main.search_item.view.installments
+import kotlinx.android.synthetic.main.search_item.view.price
+import kotlinx.android.synthetic.main.search_item.view.rate
+import kotlinx.android.synthetic.main.search_item.view.shipping
+
+class SearchAdapter(
+    products: MutableList<ProductResult> = mutableListOf()
+) : SimpleAdapter<ProductResult, SearchAdapter.ViewHolder>(products) {
+
+    override fun onCreateItemViewHolder(parent: ViewGroup): ViewHolder {
+        val searchItemView = LayoutInflater.from(parent.context)
+            .inflate(R.layout.search_item, parent, false)
+        return ViewHolder(searchItemView)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, item: ProductResult) {
+        with(holder) {
+            description.text = item.title
+            val priceFormat = "%s %s"
+            price.text = priceFormat.format("R$", item.price.toString())
+
+            setupInstallments(this, item)
+
+            shipping.isVisible = item.shipping != null && item.shipping.freeShipping
+        }
+    }
+
+    private fun setupInstallments(holder: ViewHolder, item: ProductResult) {
+        if (item.installments != null) {
+            with(holder.installments) {
+                val installments = "%s %s"
+                text = installments.format("${item.installments.quantity}x", "R\$${item.installments.amount}")
+                isVisible = true
+            }
+
+            holder.rate.isVisible = item.installments.rate <= 0
+        }
+    }
+
+    inner class ViewHolder(itemVIew: View) : RecyclerView.ViewHolder(itemVIew) {
+        val image: ImageView = itemVIew.image
+        val price: TextView = itemVIew.price
+        val description: TextView = itemVIew.description
+        val installments: TextView = itemVIew.installments
+        val rate: TextView = itemVIew.rate
+        val shipping: TextView = itemVIew.shipping
+    }
+}

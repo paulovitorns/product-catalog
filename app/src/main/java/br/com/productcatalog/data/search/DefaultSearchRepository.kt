@@ -6,6 +6,8 @@ import br.com.productcatalog.library.retrofit.endpoint.SearchEndpoint
 import io.reactivex.Observable
 import javax.inject.Inject
 
+class NoResultFoundException(val queryString: String) : IllegalArgumentException()
+
 class DefaultSearchRepository @Inject constructor(
     private val searchEndpoint: SearchEndpoint
 ) : SearchRepository {
@@ -13,7 +15,14 @@ class DefaultSearchRepository @Inject constructor(
     override fun searchProduct(site: String, queryString: String, limit: Int): Observable<SearchResult> {
         return searchEndpoint.searchFromSite(site, queryString, limit).map { response ->
             when (response.code()) {
-                200 -> response.body()
+                200 -> {
+                    val responseBody = response.body()
+                    if (responseBody?.results?.isNotEmpty() == true) {
+                        responseBody
+                    } else {
+                        throw NoResultFoundException(queryString)
+                    }
+                }
                 else -> throw IllegalArgumentException(response.errorBody().toString())
             }
         }
@@ -27,7 +36,14 @@ class DefaultSearchRepository @Inject constructor(
     ): Observable<SearchResult> {
         return searchEndpoint.paginateSearchResult(site, queryString, limit, offset).map { response ->
             when (response.code()) {
-                200 -> response.body()
+                200 -> {
+                    val responseBody = response.body()
+                    if (responseBody?.results?.isNotEmpty() == true) {
+                        responseBody
+                    } else {
+                        throw NoResultFoundException(queryString)
+                    }
+                }
                 else -> throw IllegalArgumentException(response.errorBody().toString())
             }
         }

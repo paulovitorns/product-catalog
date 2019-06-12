@@ -7,4 +7,9 @@
     <string name="offline_title">Hmmm, you are offline!</string>
     <string name="offline_description">Check you connection and try again.</string>
     <string name="check_connection">Refresh</string>
+    <string name="all_items_loaded">There are no more items to show</string>
+    <string name="search_not_found_title">Hmm, my bad!</string>
+    <string name="search_not_found_description">Seems like we can\'t found anything with %s</string>
+    <string name="interest_free">interest-free</string>
+    <string name="free_shipping">Free shipping</string>
 </resources>
