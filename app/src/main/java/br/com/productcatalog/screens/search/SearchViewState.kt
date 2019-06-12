@@ -2,16 +2,25 @@ package br.com.productcatalog.screens.search
 
 import br.com.productcatalog.data.models.SearchResult
 
-sealed class SearchViewState {
-    object Idle : SearchViewState()
-    data class SetFirstQueryString(val queryString: String) : SearchViewState()
-    object Online : SearchViewState()
-    object FirstPageLoading : SearchViewState()
-    data class ShowProductResult(val result: SearchResult) : SearchViewState()
-    object NextPageLoading : SearchViewState()
-    data class ShowProductNextPage(val result: SearchResult) : SearchViewState()
-    object NoConnection : SearchViewState()
-    data class ShowErrorSearchView(val queryString: String) : SearchViewState()
-    object ShowAllItemsLoaded : SearchViewState()
-    object ShowDefaultError : SearchViewState()
+data class SearchViewState(
+    // indicates that's there's something working
+    var isLoading: Boolean = false,
+    // indicates that's there's a fresh search to show
+    var isSearchPresentation: Boolean = false,
+    // indicates that's there's a new page to show
+    var isNextPagePresentation: Boolean = false,
+    // used to store data result from search products and load next page products
+    var searchResult: SearchResult? = null,
+    // indicates that's occurs some error while loading the next page
+    var stateError: Throwable? = null
+)
+
+fun SearchViewState.nextState(data: SearchViewState.() -> Unit): SearchViewState {
+    return this.apply(data)
+}
+
+sealed class SearchViewAction {
+    data class SearchProduct(val queryString: String) : SearchViewAction()
+    data class LoadNextPage(val lastPage: SearchResult) : SearchViewAction()
+    data class RestoreLastState(val lastViewState: SearchViewState) : SearchViewAction()
 }

@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.productcatalog.R
 import br.com.productcatalog.data.models.SearchResult
+import br.com.productcatalog.data.search.NoResultFoundException
+import br.com.productcatalog.domain.search.AllItemsLoadedException
 import br.com.productcatalog.library.extension.hideKeyboard
 import br.com.productcatalog.library.extension.toast
 import br.com.productcatalog.screens.BaseActivity
@@ -25,13 +27,13 @@ import kotlinx.android.synthetic.main.search_layout.recyclerView
 import kotlinx.android.synthetic.main.search_layout.searchNotFound
 import kotlinx.android.synthetic.main.search_layout.searchView
 import kotlinx.android.synthetic.main.search_not_found_state.notFoundDescription
+import java.net.UnknownHostException
 
 interface SearchUi : BaseUi {
-
     fun showReceivedQueryString(queryString: String)
     fun search(): Observable<String>
-    fun loadNextPage(): Observable<SearchResult>
-    fun retryConnection(): Observable<Unit>
+    fun loadNextPage(): Observable<Boolean>
+    fun retryButton(): Observable<Unit>
 
     /**
      * This method will render on the screen the [viewState] sent by the presentation class
@@ -47,7 +49,6 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
     override val layoutRes: Int? = R.layout.search_layout
     private val linearLayoutManager by lazy { LinearLayoutManager(this) }
     private val searchAdapter by lazy { SearchAdapter(this) }
-    private lateinit var searchResult: SearchResult
 
     override fun setupViews() {
         super.setupViews()
@@ -76,38 +77,58 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
             .map { it.toString() }
     }
 
-    override fun loadNextPage(): Observable<SearchResult> {
+    override fun loadNextPage(): Observable<Boolean> {
         return recyclerView.scrollStateChanges()
-            .filter { ::searchResult.isInitialized }
             .filter { event -> event == RecyclerView.SCROLL_STATE_IDLE }
             .filter {
                 linearLayoutManager.findLastCompletelyVisibleItemPosition() == searchAdapter.itemCount - 1
-            }.map { searchResult }
+            }.map { true }
     }
 
-    override fun retryConnection(): Observable<Unit> {
+    override fun retryButton(): Observable<Unit> {
         return retryButton.clicks()
     }
 
     override fun render(viewState: SearchViewState) {
-        when (viewState) {
-            is SearchViewState.Idle -> hideProgress()
-            is SearchViewState.SetFirstQueryString -> showStarterQueryString(viewState.queryString)
-            is SearchViewState.Online -> hideOfflineState()
-            is SearchViewState.FirstPageLoading,
-            is SearchViewState.NextPageLoading -> showProgress()
-            is SearchViewState.ShowProductResult -> showSearchResult(viewState.result)
-            is SearchViewState.ShowProductNextPage -> showNextPage(viewState.result)
-            is SearchViewState.NoConnection -> showOfflineState()
-            is SearchViewState.ShowAllItemsLoaded -> showAllItemsLoaded()
-            is SearchViewState.ShowErrorSearchView -> showSearchError(viewState.queryString)
-            is SearchViewState.ShowDefaultError -> showDefaultError()
+        hideAllErrorsState()
+        if (viewState.isLoading) {
+            showProgress()
+            return
+        }
+
+        if (viewState.stateError != null) {
+            when (viewState.stateError) {
+                is NoResultFoundException -> {
+                    showSearchError((viewState.stateError as NoResultFoundException).queryString)
+                }
+                is AllItemsLoadedException -> showAllItemsLoaded()
+                is UnknownHostException -> showOfflineState()
+                else -> showDefaultError()
+            }
+            return
+        }
+
+        viewState.searchResult.takeIf { viewState.isSearchPresentation && viewState.stateError == null }?.let {
+            hideProgress()
+            showSearchResult(it)
+            return
+        }
+
+        viewState.searchResult.takeIf { viewState.isNextPagePresentation && viewState.stateError == null }?.let {
+            hideProgress()
+            showNextPage(it)
+            return
         }
     }
 
+    private fun hideAllErrorsState() {
+        searchNotFound.isVisible = false
+        defaultError.isVisible = false
+        hideOfflineState()
+    }
+
     private fun showSearchError(queryString: String) {
-        searchAdapter.clearAll()
-        searchNotFound.isVisible = true
+        hideRecycler()
 
         val descriptionFormatted = notFoundDescription.text.toString().format(queryString)
 
@@ -122,11 +143,12 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
         }
 
         notFoundDescription.text = spannableString
+        searchNotFound.isVisible = true
         hideProgress()
     }
 
     private fun showDefaultError() {
-        searchAdapter.clearAll()
+        hideRecycler()
         defaultError.isVisible = true
         hideProgress()
     }
@@ -136,21 +158,19 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
         hideProgress()
     }
 
-    private fun showSearchResult(searchResult: SearchResult) {
-        searchNotFound.isVisible = false
+    private fun hideRecycler() {
+        recyclerView.isVisible = false
+        searchAdapter.clearAll()
+    }
 
-        this.searchResult = searchResult
-        searchAdapter.setItems(searchResult.results)
+    private fun showSearchResult(searchResult: SearchResult) {
+        recyclerView.isVisible = true
+        searchAdapter.setItem(searchResult.results)
         hideProgress()
     }
 
     private fun showNextPage(searchResult: SearchResult) {
-        searchNotFound.isVisible = false
-
-        this.searchResult = searchResult
-        searchResult.results.forEach { item ->
-            searchAdapter.addItem(item)
-        }
+        searchAdapter.addItems(searchResult.results)
         hideProgress()
     }
 
@@ -169,9 +189,5 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
 
     private fun hideOfflineState() {
         offlineState.isVisible = false
-    }
-
-    private fun showStarterQueryString(query: String) {
-        searchView.setQuery(query, false)
     }
 }

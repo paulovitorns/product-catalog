@@ -8,7 +8,7 @@ data class SearchResult(
     @SerialName("site_id") val siteId: String,
     val query: String,
     val paging: SearchPaging,
-    val results: List<ProductResult>
+    var results: MutableList<ProductResult>
 )
 
 @Serializable

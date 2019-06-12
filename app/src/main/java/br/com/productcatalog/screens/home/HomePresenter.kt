@@ -1,17 +1,14 @@
 package br.com.productcatalog.screens.home
 
 import br.com.productcatalog.domain.CleanQueryStringUseCase
-import br.com.productcatalog.screens.search.SearchViewState
 import br.com.productcatalog.library.state.StateStore
 import br.com.productcatalog.screens.BasePresenter
 import br.com.productcatalog.screens.BaseUi
-import br.com.productcatalog.screens.search.SearchUi
 import javax.inject.Inject
 
 class HomePresenter @Inject constructor(
     private val stateStore: StateStore,
     private val cleanQueryStringUseCase: CleanQueryStringUseCase
-
 ) : BasePresenter<BaseUi>() {
 
     private val homeUi: HomeUi? get() = baseUi()
@@ -21,7 +18,7 @@ class HomePresenter @Inject constructor(
         val cleanQueryString = cleanQueryStringUseCase(query)
 
         // store a new state to send to the search screen
-        stateStore.save(SearchUi::class, SearchViewState.SetFirstQueryString(cleanQueryString))
+        stateStore.save(HomeUi::class, cleanQueryString)
 
         homeUi?.openSearchScreen(cleanQueryString)
     }

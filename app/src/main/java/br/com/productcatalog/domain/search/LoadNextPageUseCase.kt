@@ -10,7 +10,7 @@ import javax.inject.Inject
 class AllItemsLoadedException : IllegalArgumentException()
 
 @ActivityScope
-class PaginateResultUseCase @Inject constructor(
+class LoadNextPageUseCase @Inject constructor(
     private val searchRepository: SearchRepository,
     private val schedulerProvider: SchedulerProvider
 ) {
@@ -27,7 +27,7 @@ class PaginateResultUseCase @Inject constructor(
         val nextOffset = currentOffset + lastSearchResult.paging.limit
 
         if (remainingItems == -1) {
-            // retrieve the result size minus the first page loaded
+            // retrieve the searchResult size minus the first page loaded
             remainingItems = resultSize - lastSearchResult.paging.limit
         }
 
