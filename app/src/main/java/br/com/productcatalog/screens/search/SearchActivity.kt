@@ -183,6 +183,8 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
     }
 
     private fun showOfflineState() {
+        hideRecycler()
+
         offlineState.isVisible = true
         hideProgress()
     }
