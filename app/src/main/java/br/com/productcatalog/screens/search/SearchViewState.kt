@@ -9,6 +9,8 @@ data class SearchViewState(
     var isSearchPresentation: Boolean = false,
     // indicates that's there's a new page to show
     var isNextPagePresentation: Boolean = false,
+    // indicates that's has loaded all the pages
+    var hasLoadedAllPages: Boolean = false,
     // used to store data result from search products and load next page products
     var searchResult: SearchResult? = null,
     // indicates that's occurs some error while loading the next page

@@ -3,6 +3,7 @@ package br.com.productcatalog.screens.search
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import br.com.productcatalog.data.models.ProductResult
+import br.com.productcatalog.domain.search.AllItemsLoadedException
 import br.com.productcatalog.domain.search.SearchActionComposer
 import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.library.reactivex.SchedulerProvider
@@ -76,9 +77,9 @@ class SearchPresenter @Inject constructor(
             .map { queryString -> SearchViewAction.SearchProduct(queryString) }
 
         val nextPage: Observable<SearchViewAction> = searchUi?.loadNextPage()!!
-            .filter {
-                lastViewState != null && lastViewState is SearchViewState
-            }
+            .filter { lastViewState != null }
+            .filter { lastViewState is SearchViewState }
+            .filter { lastViewState?.hasLoadedAllPages == false }
             .map { SearchViewAction.LoadNextPage(lastViewState?.searchResult!!) }
 
         val retryIntent: Observable<SearchViewAction> = searchUi?.retryButton()!!
@@ -105,6 +106,7 @@ class SearchPresenter @Inject constructor(
             is PartialStateChanged.StateError -> {
                 previousState.nextState {
                     isLoading = false
+                    hasLoadedAllPages = partialChanges.error is AllItemsLoadedException
                     stateError = partialChanges.error
                 }
             }
@@ -114,6 +116,7 @@ class SearchPresenter @Inject constructor(
                     stateError = null
                     isSearchPresentation = true
                     isNextPagePresentation = false
+                    hasLoadedAllPages = false
                     searchResult = partialChanges.searchResult
                 }
             }
