@@ -7,10 +7,12 @@ import br.com.productcatalog.screens.search.PartialStateChanged.LastViewStateRes
 import br.com.productcatalog.screens.search.PartialStateChanged.NextPageLoaded
 import br.com.productcatalog.screens.search.PartialStateChanged.SearchProductsLoaded
 import br.com.productcatalog.screens.search.PartialStateChanged.StateError
+import br.com.productcatalog.screens.search.PartialStateChanged.ProductDetailOpened
 import br.com.productcatalog.screens.search.SearchViewAction
 import br.com.productcatalog.screens.search.SearchViewAction.LoadNextPage
 import br.com.productcatalog.screens.search.SearchViewAction.RestoreLastState
 import br.com.productcatalog.screens.search.SearchViewAction.SearchProduct
+import br.com.productcatalog.screens.search.SearchViewAction.OpenProductDetail
 import javax.inject.Inject
 
 @ActivityScope
@@ -21,6 +23,7 @@ class SearchResultMapper @Inject constructor() {
             is SearchProduct -> SearchProductsLoaded(result as SearchResult)
             is LoadNextPage -> NextPageLoaded(result as SearchResult)
             is RestoreLastState -> LastViewStateRestored(action.lastViewState)
+            is OpenProductDetail -> ProductDetailOpened(result as String)
         }
     }
 

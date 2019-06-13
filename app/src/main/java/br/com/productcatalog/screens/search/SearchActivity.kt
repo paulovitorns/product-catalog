@@ -1,5 +1,6 @@
 package br.com.productcatalog.screens.search
 
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
@@ -9,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.productcatalog.R
+import br.com.productcatalog.data.models.ProductResult
 import br.com.productcatalog.data.models.SearchResult
 import br.com.productcatalog.data.search.NoResultFoundException
 import br.com.productcatalog.domain.search.AllItemsLoadedException
@@ -16,6 +18,7 @@ import br.com.productcatalog.library.extension.hideKeyboard
 import br.com.productcatalog.library.extension.toast
 import br.com.productcatalog.screens.BaseActivity
 import br.com.productcatalog.screens.BaseUi
+import br.com.productcatalog.screens.product.ProductActivity
 import com.jakewharton.rxbinding3.recyclerview.scrollStateChanges
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.queryTextChanges
@@ -35,7 +38,7 @@ interface SearchUi : BaseUi {
     fun search(): Observable<String>
     fun loadNextPage(): Observable<Boolean>
     fun retryButton(): Observable<Unit>
-
+    fun productSelected(): Observable<ProductResult>
     /**
      * This method will render on the screen the [viewState] sent by the presentation class
      *
@@ -105,8 +108,13 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
         return retryButton.clicks()
     }
 
+    override fun productSelected(): Observable<ProductResult> {
+        return searchAdapter.onItemSelected()
+    }
+
     override fun render(viewState: SearchViewState) {
         hideAllErrorsState()
+
         if (viewState.isLoading) {
             showProgress()
             return
@@ -134,6 +142,17 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
             hideProgress()
             showNextPage(it)
             return
+        }
+
+        if (!viewState.productId.isNullOrBlank()) {
+            openProductScreen()
+        }
+    }
+
+    private fun openProductScreen() {
+        Intent(this, ProductActivity::class.java).also {
+            startActivity(it)
+            hideProgress()
         }
     }
 

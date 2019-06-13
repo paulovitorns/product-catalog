@@ -38,5 +38,8 @@
         <activity
             android:name=".screens.search.SearchActivity"
             android:theme="@style/AppTheme.FullBackgroundColor.Orange"/>
+        <activity
+            android:name=".screens.product.ProductActivity"
+            android:theme="@style/AppTheme.FullBackgroundColor.Orange"/>
     </application>
 </manifest>

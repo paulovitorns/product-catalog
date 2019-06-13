@@ -6,6 +6,7 @@ import br.com.productcatalog.screens.search.SearchViewAction
 import br.com.productcatalog.screens.search.SearchViewAction.LoadNextPage
 import br.com.productcatalog.screens.search.SearchViewAction.RestoreLastState
 import br.com.productcatalog.screens.search.SearchViewAction.SearchProduct
+import br.com.productcatalog.screens.search.SearchViewAction.OpenProductDetail
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import javax.inject.Inject
@@ -21,9 +22,10 @@ class SearchActionComposer @Inject constructor(
         return ObservableTransformer { action ->
             action.publish { shared ->
                 Observable.mergeArray(
-                    shared.ofType(SearchViewAction.SearchProduct::class.java).compose(searchProductAction()),
-                    shared.ofType(SearchViewAction.LoadNextPage::class.java).compose(loadNexPageAction()),
-                    shared.ofType(SearchViewAction.RestoreLastState::class.java).compose(restoreLastStateAction())
+                    shared.ofType(SearchProduct::class.java).compose(searchProductAction()),
+                    shared.ofType(LoadNextPage::class.java).compose(loadNexPageAction()),
+                    shared.ofType(RestoreLastState::class.java).compose(restoreLastStateAction()),
+                    shared.ofType(OpenProductDetail::class.java).compose(openProductDetailsAction())
                 )
             }
         }
@@ -56,6 +58,17 @@ class SearchActionComposer @Inject constructor(
             observer.flatMap { action ->
                 Observable.just(action)
                     .map { searchResultMapper.stateOf(action, it) }
+                    .onErrorReturn { error -> searchResultMapper.errorOf(error) }
+                    .startWith(PartialStateChanged.Loading)
+            }
+        }
+    }
+
+    private fun openProductDetailsAction(): ObservableTransformer<OpenProductDetail, PartialStateChanged> {
+        return ObservableTransformer { observer ->
+            observer.flatMap { action ->
+                Observable.just(action)
+                    .map { searchResultMapper.stateOf(action, action.productId) }
                     .onErrorReturn { error -> searchResultMapper.errorOf(error) }
                     .startWith(PartialStateChanged.Loading)
             }

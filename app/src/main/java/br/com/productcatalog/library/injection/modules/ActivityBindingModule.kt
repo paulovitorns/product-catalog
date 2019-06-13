@@ -2,6 +2,7 @@ package br.com.productcatalog.library.injection.modules
 
 import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.screens.home.HomeActivity
+import br.com.productcatalog.screens.product.ProductActivity
 import br.com.productcatalog.screens.search.SearchActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -16,4 +17,8 @@ abstract class ActivityBindingModule {
     @ActivityScope
     @ContributesAndroidInjector(modules = [SearchModule::class])
     abstract fun searchActivity(): SearchActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector
+    abstract fun productActivity(): ProductActivity
 }

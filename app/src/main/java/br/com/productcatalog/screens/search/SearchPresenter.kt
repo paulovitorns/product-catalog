@@ -13,6 +13,7 @@ import br.com.productcatalog.library.state.StateStore
 import br.com.productcatalog.screens.BasePresenter
 import br.com.productcatalog.screens.BaseUi
 import br.com.productcatalog.screens.home.HomeUi
+import br.com.productcatalog.screens.product.ProductUi
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
@@ -71,6 +72,11 @@ class SearchPresenter @Inject constructor(
             .scan(initialState, this::viewStateReducer)
             .subscribe({ result ->
                 lastViewState = result
+
+                if (!result.productId.isNullOrBlank()) {
+                    stateStore.save(ProductUi::class, result.productId!!)
+                }
+
                 searchUi?.render(result)
             }, { error ->
                 Log.e("SEARCH", error.message)
@@ -78,6 +84,9 @@ class SearchPresenter @Inject constructor(
     }
 
     private fun bindIntents() {
+
+        val openProductIntent: Observable<SearchViewAction> = searchUi?.productSelected()!!
+            .map { SearchViewAction.OpenProductDetail(it.id) }
 
         val searchViewIntent: Observable<SearchViewAction> = searchUi?.search()!!
             .debounce(500, TimeUnit.MILLISECONDS, schedulerProvider.workerThread())
@@ -98,7 +107,8 @@ class SearchPresenter @Inject constructor(
         val allIntents: Observable<SearchViewAction> = Observable.merge(
             searchViewIntent,
             nextPage,
-            retryIntent
+            retryIntent,
+            openProductIntent
         )
 
         allIntents.subscribe(publishSubject)
@@ -155,6 +165,15 @@ class SearchPresenter @Inject constructor(
                     isSearchPresentation = true
                     isNextPagePresentation = false
                     searchResult = partialChanges.lastViewState.searchResult
+                }
+            }
+            is PartialStateChanged.ProductDetailOpened -> {
+                previousState.nextState {
+                    isLoading = false
+                    stateError = null
+                    isSearchPresentation = false
+                    isNextPagePresentation = false
+                    productId = partialChanges.productId
                 }
             }
         }

@@ -13,6 +13,8 @@ data class SearchViewState(
     var hasLoadedAllPages: Boolean = false,
     // used to store data result from search products and load next page products
     var searchResult: SearchResult? = null,
+    // used to store data result from search products and load next page products
+    var productId: String? = null,
     // indicates that's occurs some error while loading the next page
     var stateError: Throwable? = null
 )
@@ -25,4 +27,5 @@ sealed class SearchViewAction {
     data class SearchProduct(val queryString: String) : SearchViewAction()
     data class LoadNextPage(val lastPage: SearchResult) : SearchViewAction()
     data class RestoreLastState(val lastViewState: SearchViewState) : SearchViewAction()
+    data class OpenProductDetail(val productId: String) : SearchViewAction()
 }
