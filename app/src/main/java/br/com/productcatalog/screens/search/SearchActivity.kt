@@ -1,6 +1,7 @@
 package br.com.productcatalog.screens.search
 
 import android.graphics.Typeface
+import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -49,6 +50,14 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
     override val layoutRes: Int? = R.layout.search_layout
     private val linearLayoutManager by lazy { LinearLayoutManager(this) }
     private val searchAdapter by lazy { SearchAdapter(this) }
+    private var lastRecyclerPosition = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState != null) {
+            lastRecyclerPosition = savedInstanceState.getInt(LAST_RECYCLER_POSITION)
+        }
+    }
 
     override fun setupViews() {
         super.setupViews()
@@ -66,6 +75,13 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
                 }
             }
         })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        val linearManager = recyclerView.layoutManager as LinearLayoutManager
+        val scrollPosition = linearManager.findFirstVisibleItemPosition()
+        outState?.putInt(LAST_RECYCLER_POSITION, scrollPosition)
+        super.onSaveInstanceState(outState)
     }
 
     override fun showReceivedQueryString(queryString: String) {
@@ -165,7 +181,13 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
 
     private fun showSearchResult(searchResult: SearchResult) {
         recyclerView.isVisible = true
-        searchAdapter.setItem(searchResult.results)
+        searchAdapter.setItems(searchResult.results)
+
+        if (lastRecyclerPosition > 0) {
+            val linearManager = recyclerView.layoutManager as LinearLayoutManager
+            linearManager.scrollToPositionWithOffset(lastRecyclerPosition, 0)
+        }
+
         hideProgress()
     }
 
@@ -193,3 +215,5 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
         offlineState.isVisible = false
     }
 }
+
+private const val LAST_RECYCLER_POSITION = "last_recycler_position"

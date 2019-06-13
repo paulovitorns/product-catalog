@@ -38,7 +38,7 @@ abstract class SimpleAdapter<in I, VH : ViewHolder>(
         return inflater.inflate(layoutResource, rootView, attachToRoot)
     }
 
-    open fun setItem(newItems: List<I>) {
+    open fun setItems(newItems: List<I>) {
         itemList.clear()
         itemList.addAll(newItems)
         notifyDataSetChanged()

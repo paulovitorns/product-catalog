@@ -37,12 +37,20 @@ class SearchPresenter @Inject constructor(
         retrieveQueryString()
         setupPublisher()
         bindIntents()
+        restoreStateIfNeeded()
     }
 
     override fun onSaveState() {
         super.onSaveState()
         // save on memory the SearchViewState
         lastViewState?.let { stateStore.save(SearchUi::class, it) }
+    }
+
+    private fun restoreStateIfNeeded() {
+        val lastState: SearchViewState? = stateStore.load(SearchUi::class)
+        if (lastState != null) {
+            publishSubject.onNext(SearchViewAction.RestoreLastState(lastState))
+        }
     }
 
     private fun retrieveQueryString() {
@@ -74,6 +82,7 @@ class SearchPresenter @Inject constructor(
         val searchViewIntent: Observable<SearchViewAction> = searchUi?.search()!!
             .debounce(500, TimeUnit.MILLISECONDS, schedulerProvider.workerThread())
             .filter { typed -> typed.isNotEmpty() && typed.length > 1 }
+            .filter { typed -> typed != lastViewState?.searchResult?.query }
             .map { queryString -> SearchViewAction.SearchProduct(queryString) }
 
         val nextPage: Observable<SearchViewAction> = searchUi?.loadNextPage()!!
