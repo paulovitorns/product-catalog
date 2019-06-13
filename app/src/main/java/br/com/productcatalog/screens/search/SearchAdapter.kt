@@ -10,6 +10,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import br.com.productcatalog.R
 import br.com.productcatalog.data.models.ProductResult
+import br.com.productcatalog.library.extension.color
+import br.com.productcatalog.library.extension.toMoney
 import br.com.productcatalog.library.recyclerview.SimpleAdapter
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.search_item.view.description
@@ -33,8 +35,7 @@ class SearchAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int, item: ProductResult) {
         with(holder) {
             description.text = item.title
-            val priceFormat = "%s %s"
-            price.text = priceFormat.format("R$", item.price.toString())
+            price.text = item.price.toMoney(item.currency)
 
             setupInstallments(this, item)
 
@@ -53,11 +54,17 @@ class SearchAdapter(
         if (item.installments != null) {
             with(holder.installments) {
                 val installments = "%s %s"
-                text = installments.format("${item.installments.quantity}x", "R\$${item.installments.amount}")
+                text = installments.format(
+                    "${item.installments.quantity}x",
+                    item.installments.amount.toMoney(item.currency)
+                )
                 isVisible = true
             }
 
-            holder.rate.isVisible = item.installments.rate <= 0
+            if (item.installments.rate <= 0) {
+                holder.rate.isVisible = true
+                holder.installments.setTextColor(context.color(R.color.green))
+            }
         }
     }
 

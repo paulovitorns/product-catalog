@@ -1,7 +1,7 @@
 package br.com.productcatalog.library.extension
 
 import android.content.Context
-import android.net.ConnectivityManager
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 
-fun Context.getConnectivityManager(): ConnectivityManager =
-    getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+fun Context.color(@ColorRes resourceId: Int): Int = ContextCompat.getColor(this, resourceId)

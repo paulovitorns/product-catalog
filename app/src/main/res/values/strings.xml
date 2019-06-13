@@ -1,15 +1,15 @@
 <resources>
-    <string name="app_name">Product Catalog</string>
-    <string name="dashboard_intro">Product Catalog</string>
-    <string name="dashboard_description">Search your favorite products from Mercado Livre.</string>
-    <string name="search_hint">Type some product name</string>
-    <string name="menu_search">Search</string>
-    <string name="offline_title">Hmmm, you are offline!</string>
-    <string name="offline_description">Check you connection and try again.</string>
-    <string name="check_connection">Refresh</string>
-    <string name="all_items_loaded">There are no more items to show</string>
-    <string name="search_not_found_title">Hmm, my bad!</string>
-    <string name="search_not_found_description">Seems like we can\'t found anything with %s</string>
-    <string name="interest_free">interest-free</string>
-    <string name="free_shipping">Free shipping</string>
+    <string name="app_name">Catálogos de Produtos</string>
+    <string name="dashboard_intro">Catálogos de Produtos</string>
+    <string name="dashboard_description">Procure por produtos do Mercado Livre.</string>
+    <string name="search_hint">Digite algum produto</string>
+    <string name="menu_search">Busca</string>
+    <string name="offline_title">Hmmm, você esta offline!</string>
+    <string name="offline_description">Verifique sua conexão e tente novamente.</string>
+    <string name="check_connection">Recarregar</string>
+    <string name="all_items_loaded">Já exibimos todos os produtos</string>
+    <string name="search_not_found_title">Hmm, foi mal!</string>
+    <string name="search_not_found_description">Não encontramos nenhum produto para essa palavra-chave %s</string>
+    <string name="interest_free">sem juros</string>
+    <string name="free_shipping">Frete grátis</string>
 </resources>
