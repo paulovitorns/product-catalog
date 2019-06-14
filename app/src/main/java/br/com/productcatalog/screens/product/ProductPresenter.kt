@@ -1,6 +1,7 @@
 package br.com.productcatalog.screens.product
 
 import android.util.Log
+import br.com.productcatalog.data.models.ProductResult
 import br.com.productcatalog.domain.product.ProductDetailComposer
 import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.library.reactivex.SchedulerProvider
@@ -52,11 +53,15 @@ class ProductPresenter @Inject constructor(
             .compose(applyObservableSchedulers(schedulerProvider))
             .scan(initialState, this::viewStateReducer)
             .distinctUntilChanged()
+            .doOnNext { result ->
+                productUi?.render(result)
+            }
             .subscribe({ result ->
                 lastState = result
 
                 if (result.productDetail != null && result.productDetail.description == null && result.stateError == null) {
                     publishSubject.onNext(ProductViewAction.LoadProductDescription(result.productDetail.id))
+                    return@subscribe
                 }
 
                 if (result.isShowFullCharacteristics) {
@@ -64,6 +69,7 @@ class ProductPresenter @Inject constructor(
                         ProductExtraDetailUi::class,
                         ProductExtraDetailsAction.OpenCharacteristics(result.productDetail!!)
                     )
+                    return@subscribe
                 }
 
                 if (result.isShowFullDescription) {
@@ -71,9 +77,8 @@ class ProductPresenter @Inject constructor(
                         ProductExtraDetailUi::class,
                         ProductExtraDetailsAction.OpenDescription(result.productDetail!!)
                     )
+                    return@subscribe
                 }
-
-                productUi?.render(result)
             }, { error ->
                 Log.e("SEARCH", error.message)
             }).addDisposableTo(disposeBag)
@@ -81,12 +86,12 @@ class ProductPresenter @Inject constructor(
         val retryIntent: Observable<ProductViewAction> = productUi?.retryButton()!!
             .filter { lastState?.stateError is UnknownHostException }
             .map {
-                return@map if (lastState?.productId?.isNotEmpty() == true) {
-                    ProductViewAction.LoadProductDetail(lastState?.productId!!)
-                } else if (lastState?.productDetail?.description == null) {
-                    ProductViewAction.LoadProductDescription(lastState?.productDetail?.id!!)
-                } else {
-                    ProductViewAction.RestoreLastState(lastState!!)
+                return@map when {
+                    lastState?.productToOpen != null ->
+                        ProductViewAction.LoadProductDetail(lastState?.productToOpen!!)
+                    lastState?.productDetail?.description == null ->
+                        ProductViewAction.LoadProductDescription(lastState?.productDetail?.id!!)
+                    else -> ProductViewAction.RestoreLastState(lastState!!)
                 }
             }
 
@@ -107,10 +112,8 @@ class ProductPresenter @Inject constructor(
 
     private fun loadProductOrRestoreLastState() {
         when (val param: Any? = stateStore.load(ProductUi::class)) {
-            is String -> {
-                if (param.isNotEmpty()) {
-                    publishSubject.onNext(ProductViewAction.LoadProductDetail(param))
-                }
+            is ProductResult -> {
+                publishSubject.onNext(ProductViewAction.LoadProductDetail(param))
             }
             is ProductViewState -> publishSubject.onNext(ProductViewAction.RestoreLastState(param))
             else -> {
@@ -132,14 +135,14 @@ class ProductPresenter @Inject constructor(
             }
             is ProductPartialState.StateError -> {
                 previousState.builder()
-                    .setProductId(partialChanges.productId)
+                    .setProductToOpen(partialChanges.productToOpen)
                     .setLoading(false)
                     .setStateError(partialChanges.error)
                     .build()
             }
             is ProductPartialState.ProductDetailLoaded -> {
                 previousState.builder()
-                    .setProductId(null)
+                    .setProductToOpen(null)
                     .setLoading(false)
                     .setStateError(null)
                     .setProductPresentation(true)

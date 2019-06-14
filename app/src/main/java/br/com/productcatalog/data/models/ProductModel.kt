@@ -20,7 +20,8 @@ data class ProductDetail(
     val pictures: List<Picture>,
     val shipping: Shipping?,
     @SerialName("attributes") val characteristics: List<Characteristic>?,
-    var description: ProductDescription? = null
+    var description: ProductDescription? = null,
+    var installments: Installments? = null
 )
 
 @Serializable

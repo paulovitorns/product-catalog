@@ -13,6 +13,7 @@
         android:layout_height="?attr/actionBarSize"
         android:iconifiedByDefault="false"
         android:background="@color/orange"
+        android:queryBackground="@android:color/transparent"
         android:elevation="4dp"
         android:queryHint="@string/search_hint"
         app:layout_constraintTop_toTopOf="parent"

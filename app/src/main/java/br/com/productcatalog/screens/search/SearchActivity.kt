@@ -144,7 +144,7 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
             return
         }
 
-        if (!viewState.productId.isNullOrBlank()) {
+        if (viewState.productSelected != null) {
             openProductScreen()
         }
     }

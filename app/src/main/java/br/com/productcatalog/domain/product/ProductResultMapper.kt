@@ -33,7 +33,7 @@ class ProductResultMapper @Inject constructor() {
 
     fun errorOf(action: ProductViewAction, error: Throwable): ProductPartialState {
         return when (action) {
-            is LoadProductDetail -> StateError(error, action.productId)
+            is LoadProductDetail -> StateError(error, action.productResult)
             else -> StateError(error)
         }
     }

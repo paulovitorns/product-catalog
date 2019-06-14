@@ -1,5 +1,6 @@
 package br.com.productcatalog.screens.search
 
+import br.com.productcatalog.data.models.ProductResult
 import br.com.productcatalog.data.models.SearchResult
 
 data class SearchViewState(
@@ -15,8 +16,7 @@ data class SearchViewState(
     val hasLoadedAllPages: Boolean = false,
     // used to store data result from search products and load next page products
     val searchResult: SearchResult? = null,
-    // used to store data result from search products and load next page products
-    val productId: String? = null,
+    val productSelected: ProductResult? = null,
     // indicates that's occurs some error while loading the next page
     val stateError: Throwable? = null
 ) {
@@ -32,7 +32,7 @@ data class SearchViewState(
         private var isNextPagePresentation = searchViewState.isNextPagePresentation
         private var hasLoadedAllPages = searchViewState.hasLoadedAllPages
         private var searchResult: SearchResult? = searchViewState.searchResult
-        private var productId: String? = searchViewState.productId
+        private var productSelected: ProductResult? = searchViewState.productSelected
         private var stateError: Throwable? = searchViewState.stateError
 
         fun setLastQueryString(queryString: String?): Builder {
@@ -65,8 +65,8 @@ data class SearchViewState(
             return this
         }
 
-        fun setProductId(productId: String?): Builder {
-            this.productId = productId
+        fun setProductSelected(productSelected: ProductResult?): Builder {
+            this.productSelected = productSelected
             return this
         }
 
@@ -83,7 +83,7 @@ data class SearchViewState(
                 isNextPagePresentation,
                 hasLoadedAllPages,
                 searchResult,
-                productId,
+                productSelected,
                 stateError
             )
         }
@@ -94,5 +94,5 @@ sealed class SearchViewAction {
     data class SearchProduct(val queryString: String) : SearchViewAction()
     data class LoadNextPage(val lastPage: SearchResult) : SearchViewAction()
     data class RestoreLastState(val lastViewState: SearchViewState) : SearchViewAction()
-    data class OpenProductDetail(val productId: String) : SearchViewAction()
+    data class OpenProductDetail(val productResult: ProductResult) : SearchViewAction()
 }

@@ -1,10 +1,11 @@
 package br.com.productcatalog.screens.product
 
 import br.com.productcatalog.data.models.ProductDetail
+import br.com.productcatalog.data.models.ProductResult
 
 data class ProductViewState(
     // stored the product Id to be used in case of lost connection os something like that
-    val productId: String? = null,
+    val productToOpen: ProductResult? = null,
     // indicates that's there's something working
     val isLoading: Boolean = false,
     // indicates that's there's a fresh product to show
@@ -24,7 +25,7 @@ data class ProductViewState(
     }
 
     class Builder(searchViewState: ProductViewState) {
-        private var productId: String? = searchViewState.productId
+        private var productToOpen: ProductResult? = searchViewState.productToOpen
         private var isLoading = searchViewState.isLoading
         private var isProductPresentation = searchViewState.isProductPresentation
         private var isDescriptionPresentation = searchViewState.isDescriptionPresentation
@@ -33,8 +34,8 @@ data class ProductViewState(
         private var productDetail: ProductDetail? = searchViewState.productDetail
         private var stateError: Throwable? = searchViewState.stateError
 
-        fun setProductId(productId: String?): Builder {
-            this.productId = productId
+        fun setProductToOpen(productResult: ProductResult?): Builder {
+            this.productToOpen = productResult
             return this
         }
 
@@ -63,7 +64,7 @@ data class ProductViewState(
             return this
         }
 
-        fun setProductDetail(productDetail: ProductDetail??): Builder {
+        fun setProductDetail(productDetail: ProductDetail?): Builder {
             this.productDetail = productDetail
             return this
         }
@@ -75,7 +76,7 @@ data class ProductViewState(
 
         fun build(): ProductViewState {
             return ProductViewState(
-                productId,
+                productToOpen,
                 isLoading,
                 isProductPresentation,
                 isDescriptionPresentation,

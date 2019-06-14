@@ -37,8 +37,11 @@ class ProductDetailComposer @Inject constructor(
     private fun fetchProductDetailAction(): ObservableTransformer<LoadProductDetail, ProductPartialState> {
         return ObservableTransformer { observer ->
             observer.flatMap { action ->
-                getProductDetailUseCase(action.productId)
-                    .map { productMapper.stateOf(action, it) }
+                getProductDetailUseCase(action.productResult.id)
+                    .map {
+                        it.installments = action.productResult.installments
+                        productMapper.stateOf(action, it)
+                    }
                     .onErrorReturn { productMapper.errorOf(action, it) }
                     .startWith(Loading)
             }

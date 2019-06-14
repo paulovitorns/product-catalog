@@ -1,5 +1,6 @@
 package br.com.productcatalog.library.extension
 
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
@@ -13,9 +14,15 @@ import java.util.Locale
  * @return a money format
  */
 fun Double.toMoney(currency: String = ""): String {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
-
+    val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault()) as DecimalFormat
     if (currency.isNotEmpty()) formatter.currency = Currency.getInstance(currency)
+    val symbol = formatter.currency.symbol
+
+    formatter.isGroupingUsed = true
+    formatter.positivePrefix = "$symbol "
+    formatter.negativePrefix = "-$symbol "
+    formatter.maximumFractionDigits = 2
+    formatter.minimumFractionDigits = 2
 
     return formatter.format(this)
 }

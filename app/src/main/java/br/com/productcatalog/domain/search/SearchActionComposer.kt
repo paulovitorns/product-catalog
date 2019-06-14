@@ -4,9 +4,9 @@ import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.screens.search.PartialStateChanged
 import br.com.productcatalog.screens.search.SearchViewAction
 import br.com.productcatalog.screens.search.SearchViewAction.LoadNextPage
+import br.com.productcatalog.screens.search.SearchViewAction.OpenProductDetail
 import br.com.productcatalog.screens.search.SearchViewAction.RestoreLastState
 import br.com.productcatalog.screens.search.SearchViewAction.SearchProduct
-import br.com.productcatalog.screens.search.SearchViewAction.OpenProductDetail
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import javax.inject.Inject
@@ -68,7 +68,7 @@ class SearchActionComposer @Inject constructor(
         return ObservableTransformer { observer ->
             observer.flatMap { action ->
                 Observable.just(action)
-                    .map { searchResultMapper.stateOf(action, action.productId) }
+                    .map { searchResultMapper.stateOf(action, action.productResult) }
                     .onErrorReturn { searchResultMapper.errorOf(action, it) }
                     .startWith(PartialStateChanged.Loading)
             }

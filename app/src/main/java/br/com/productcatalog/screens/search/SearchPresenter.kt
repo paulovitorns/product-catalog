@@ -75,8 +75,8 @@ class SearchPresenter @Inject constructor(
             .subscribe({ result ->
                 lastViewState = result
 
-                if (!result.productId.isNullOrBlank()) {
-                    stateStore.save(ProductUi::class, result.productId)
+                if (result.productSelected != null) {
+                    stateStore.save(ProductUi::class, result.productSelected)
                 }
 
                 searchUi?.render(result)
@@ -88,7 +88,7 @@ class SearchPresenter @Inject constructor(
     private fun bindIntents() {
 
         val openProductIntent: Observable<SearchViewAction> = searchUi?.productSelected()!!
-            .map { SearchViewAction.OpenProductDetail(it.id) }
+            .map { SearchViewAction.OpenProductDetail(it) }
 
         val searchViewIntent: Observable<SearchViewAction> = searchUi?.search()!!
             .debounce(500, TimeUnit.MILLISECONDS, schedulerProvider.workerThread())
@@ -180,7 +180,7 @@ class SearchPresenter @Inject constructor(
                     .setSearchPresentation(false)
                     .setNextPagePresentation(false)
                     .setStateError(null)
-                    .setProductId(partialChanges.productId)
+                    .setProductSelected(partialChanges.productResult)
                     .build()
             }
         }

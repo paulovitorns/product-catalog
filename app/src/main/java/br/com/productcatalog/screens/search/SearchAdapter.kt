@@ -12,6 +12,7 @@ import br.com.productcatalog.R
 import br.com.productcatalog.data.models.ProductResult
 import br.com.productcatalog.library.extension.color
 import br.com.productcatalog.library.extension.toMoney
+import br.com.productcatalog.library.extension.topAlignDecimalChars
 import br.com.productcatalog.library.recyclerview.SimpleAdapter
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.search_item.view.description
@@ -35,7 +36,7 @@ class SearchAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int, item: ProductResult) {
         with(holder) {
             description.text = item.title
-            price.text = item.price.toMoney(item.currency)
+            price.text = item.price.toMoney(item.currency).topAlignDecimalChars()
 
             setupInstallments(this, item)
 
@@ -56,7 +57,7 @@ class SearchAdapter(
                 text = installments.format(
                     "${item.installments.quantity}x",
                     item.installments.amount.toMoney(item.currency)
-                )
+                ).topAlignDecimalChars()
                 isVisible = true
             }
 

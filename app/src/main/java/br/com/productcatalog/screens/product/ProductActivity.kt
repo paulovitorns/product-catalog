@@ -1,6 +1,7 @@
 package br.com.productcatalog.screens.product
 
 import android.content.Intent
+import android.graphics.PorterDuff
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.Spanned
@@ -12,7 +13,9 @@ import br.com.productcatalog.data.models.Characteristic
 import br.com.productcatalog.data.models.ProductDescription
 import br.com.productcatalog.data.models.ProductDetail
 import br.com.productcatalog.data.search.NoResultFoundException
+import br.com.productcatalog.library.extension.color
 import br.com.productcatalog.library.extension.toMoney
+import br.com.productcatalog.library.extension.topAlignDecimalChars
 import br.com.productcatalog.screens.BaseActivity
 import br.com.productcatalog.screens.BaseUi
 import br.com.productcatalog.screens.productdetails.ProductExtraDetailActivity
@@ -21,9 +24,9 @@ import io.reactivex.Observable
 import kotlinx.android.synthetic.main.default_error_state.defaultErrorDescription
 import kotlinx.android.synthetic.main.offline_state.retryButton
 import kotlinx.android.synthetic.main.product_layout.appToolbar
-import kotlinx.android.synthetic.main.product_layout.characteristics
 import kotlinx.android.synthetic.main.product_layout.characteristicsDivider
 import kotlinx.android.synthetic.main.product_layout.characteristicsRecycler
+import kotlinx.android.synthetic.main.product_layout.characteristicsTitle
 import kotlinx.android.synthetic.main.product_layout.description
 import kotlinx.android.synthetic.main.product_layout.descriptionDivider
 import kotlinx.android.synthetic.main.product_layout.descriptionEndDivider
@@ -31,11 +34,16 @@ import kotlinx.android.synthetic.main.product_layout.descriptionTitle
 import kotlinx.android.synthetic.main.product_layout.gradientDescription
 import kotlinx.android.synthetic.main.product_layout.nextCharacteristics
 import kotlinx.android.synthetic.main.product_layout.nextDescription
+import kotlinx.android.synthetic.main.product_layout.payment
+import kotlinx.android.synthetic.main.product_layout.paymentIcon
 import kotlinx.android.synthetic.main.product_layout.photosSize
 import kotlinx.android.synthetic.main.product_layout.picturePager
-import kotlinx.android.synthetic.main.product_layout.price
+import kotlinx.android.synthetic.main.product_layout.priceProduct
 import kotlinx.android.synthetic.main.product_layout.productTitle
 import kotlinx.android.synthetic.main.product_layout.progress
+import kotlinx.android.synthetic.main.product_layout.rateFree
+import kotlinx.android.synthetic.main.product_layout.shipment
+import kotlinx.android.synthetic.main.product_layout.shipmentIcon
 import kotlinx.android.synthetic.main.product_layout.statusProduct
 import kotlinx.android.synthetic.main.search_layout.defaultError
 import kotlinx.android.synthetic.main.search_layout.offlineState
@@ -78,9 +86,9 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
 
     override fun openMoreCharacteristics(): Observable<Unit> {
         return characteristicAdapter.onItemSelected().map {
-                // we don't need the item here
-                // skipping this map
-            }
+            // we don't need the item here
+            // skipping this map
+        }
     }
 
     override fun openFullDescription(): Observable<Unit> {
@@ -103,7 +111,7 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
             Intent(this, ProductExtraDetailActivity::class.java).also {
                 startActivity(it)
             }
-
+            hideProgress()
             return
         }
 
@@ -115,21 +123,24 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
                 is UnknownHostException -> showOfflineState()
                 else -> showDefaultError()
             }
+            hideProgress()
             return
         }
 
         state.productDetail?.takeIf { state.isProductPresentation }?.let {
-            hideProgress()
             with(state.productDetail) {
-                showPhotoGallery(this)
-                showProductDetails(this)
-                showCharacteristics(this)
+                showPhotoGallery()
+                showProductDetails()
+                showProductInstallments()
+                showProductShipment()
+                showCharacteristics()
             }
+            hideProgress()
         }
 
         state.productDetail?.description?.takeIf { state.isDescriptionPresentation }?.let {
-            hideProgress()
             showProductDescription(it)
+            hideProgress()
         }
     }
 
@@ -142,12 +153,10 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
     private fun showDefaultError() {
         defaultErrorDescription.setText(R.string.malformed_product_id)
         defaultError.isVisible = true
-        hideProgress()
     }
 
     private fun showOfflineState() {
         offlineState.isVisible = true
-        hideProgress()
     }
 
     private fun showSearchError(queryString: String) {
@@ -165,49 +174,81 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
 
         notFoundDescription.text = spannableString
         searchNotFound.isVisible = true
-        hideProgress()
     }
 
-    private fun showPhotoGallery(productDetail: ProductDetail) {
-        if (productDetail.pictures.isNotEmpty()) {
+    private fun ProductDetail.showPhotoGallery() {
+        if (this.pictures.isNotEmpty()) {
             val format = getString(R.string.num_photos)
-            photosSize.text = format.format(productDetail.pictures.size)
+            photosSize.text = format.format(this.pictures.size)
             photosSize.isVisible = true
 
-            val productImageAdapter = ProductImageAdapter(this, productDetail.pictures)
+            val productImageAdapter = ProductImageAdapter(this@ProductActivity, this.pictures)
             picturePager.adapter = productImageAdapter
         }
     }
 
-    private fun showProductDetails(productDetail: ProductDetail) {
-        productTitle.text = productDetail.title
-        price.text = productDetail.price.toMoney(productDetail.currencyId)
+    private fun ProductDetail.showProductDetails() {
+        productTitle.text = this.title
+        priceProduct.text = this.price.toMoney(this.currencyId).topAlignDecimalChars()
 
         val formatStatus = getString(R.string.products_status)
-        val productCondition = if (productDetail.condition.toLowerCase() == "new") {
+        val productCondition = if (this.condition.toLowerCase() == "new") {
             getString(R.string.new_product)
         } else {
             getString(R.string.used_product)
         }
-        statusProduct.text = formatStatus.format(productCondition, productDetail.soldQuantity)
+        statusProduct.text = formatStatus.format(productCondition, this.soldQuantity)
     }
 
-    private fun showCharacteristics(productDetail: ProductDetail) {
+    private fun ProductDetail.showCharacteristics() {
 
         fun List<Characteristic>.getTopFourItems(): List<Characteristic> {
             return this.take(4).reversed()
         }
 
-        if (productDetail.characteristics?.isEmpty() == true) {
+        if (this.characteristics?.isEmpty() == true) {
             return
         }
 
-        characteristicAdapter.addItems(productDetail.characteristics!!.getTopFourItems())
+        characteristicAdapter.addItems(this.characteristics!!.getTopFourItems())
 
         nextCharacteristics.isVisible = true
         characteristicsDivider.isVisible = true
-        characteristics.isVisible = true
+        characteristicsTitle.isVisible = true
         characteristicsRecycler.isVisible = true
+    }
+
+    private fun ProductDetail.showProductInstallments() {
+
+        if (this.installments == null) return
+
+        val installments = "%s %s"
+
+        payment.text = installments.format(
+            "${this.installments?.quantity}x",
+            this.installments?.amount?.toMoney(this.installments?.currency ?: "")
+        ).topAlignDecimalChars()
+
+        if (this.installments!!.rate <= 0) {
+            payment.setTextColor(color(R.color.green))
+            paymentIcon.setColorFilter(color(R.color.green), PorterDuff.Mode.SRC_IN)
+            rateFree.isVisible = true
+        }
+
+        payment.isVisible = true
+        paymentIcon.isVisible = true
+    }
+
+    private fun ProductDetail.showProductShipment() {
+        if (this.shipping == null) return
+
+        if (this.shipping.freeShipping) {
+            shipment.text = getString(R.string.free_shipping)
+            shipment.setTextColor(color(R.color.green))
+            shipmentIcon.setColorFilter(color(R.color.green), PorterDuff.Mode.SRC_IN)
+            shipmentIcon.isVisible = true
+            shipment.isVisible = true
+        }
     }
 
     private fun showProductDescription(productDescription: ProductDescription) {
