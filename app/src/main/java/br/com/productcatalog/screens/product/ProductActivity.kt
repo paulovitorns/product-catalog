@@ -53,6 +53,7 @@ interface ProductUi : BaseUi {
 class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
 
     override val layoutRes: Int? = R.layout.product_layout
+    private val characteristicAdapter = CharacteristicAdapter()
 
     override fun setupToolbar() {
         super.setupToolbar()
@@ -60,6 +61,11 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
         title = ""
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun setupViews() {
+        super.setupViews()
+        characteristicsRecycler.adapter = characteristicAdapter
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -71,7 +77,10 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
     }
 
     override fun openMoreCharacteristics(): Observable<Unit> {
-        return characteristicsRecycler.clicks()
+        return characteristicAdapter.onItemSelected().map {
+                // we don't need the item here
+                // skipping this map
+            }
     }
 
     override fun openFullDescription(): Observable<Unit> {
@@ -185,15 +194,15 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
 
     private fun showCharacteristics(productDetail: ProductDetail) {
 
-        fun List<Characteristic>.getTopFourItems(): MutableList<Characteristic> {
-            return this.take(4).reversed().toMutableList()
+        fun List<Characteristic>.getTopFourItems(): List<Characteristic> {
+            return this.take(4).reversed()
         }
 
         if (productDetail.characteristics?.isEmpty() == true) {
             return
         }
 
-        characteristicsRecycler.adapter = CharacteristicAdapter(productDetail.characteristics!!.getTopFourItems())
+        characteristicAdapter.addItems(productDetail.characteristics!!.getTopFourItems())
 
         nextCharacteristics.isVisible = true
         characteristicsDivider.isVisible = true

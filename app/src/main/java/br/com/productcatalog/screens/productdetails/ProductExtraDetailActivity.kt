@@ -1,5 +1,6 @@
 package br.com.productcatalog.screens.productdetails
 
+import android.view.MenuItem
 import androidx.core.view.isVisible
 import br.com.productcatalog.R
 import br.com.productcatalog.data.models.Characteristic
@@ -25,6 +26,14 @@ class ProductExtraDetailActivity : BaseActivity<ProductExtraDetailPresenter>(), 
         setSupportActionBar(appToolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == android.R.id.home) {
+            onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun showTitle(productTitle: String) {
