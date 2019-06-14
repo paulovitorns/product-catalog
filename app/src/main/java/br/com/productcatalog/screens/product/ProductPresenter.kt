@@ -2,6 +2,7 @@ package br.com.productcatalog.screens.product
 
 import android.util.Log
 import br.com.productcatalog.domain.product.ProductDetailComposer
+import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.library.reactivex.SchedulerProvider
 import br.com.productcatalog.library.reactivex.addDisposableTo
 import br.com.productcatalog.library.reactivex.applyObservableSchedulers
@@ -9,11 +10,14 @@ import br.com.productcatalog.library.reactivex.withDelay
 import br.com.productcatalog.library.state.StateStore
 import br.com.productcatalog.screens.BasePresenter
 import br.com.productcatalog.screens.BaseUi
+import br.com.productcatalog.screens.productdetails.ProductExtraDetailUi
+import br.com.productcatalog.screens.productdetails.ProductExtraDetailsAction
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import java.net.UnknownHostException
 import javax.inject.Inject
 
+@ActivityScope
 class ProductPresenter @Inject constructor(
     private val productDetailComposer: ProductDetailComposer,
     private val schedulerProvider: SchedulerProvider,
@@ -51,8 +55,22 @@ class ProductPresenter @Inject constructor(
             .subscribe({ result ->
                 lastState = result
 
-                if (result.productDetail != null && result.productDescription == null && result.stateError == null) {
+                if (result.productDetail != null && result.productDetail.description == null && result.stateError == null) {
                     publishSubject.onNext(ProductViewAction.LoadProductDescription(result.productDetail.id))
+                }
+
+                if (result.isShowFullCharacteristics) {
+                    stateStore.save(
+                        ProductExtraDetailUi::class,
+                        ProductExtraDetailsAction.OpenCharacteristics(result.productDetail!!)
+                    )
+                }
+
+                if (result.isShowFullDescription) {
+                    stateStore.save(
+                        ProductExtraDetailUi::class,
+                        ProductExtraDetailsAction.OpenDescription(result.productDetail!!)
+                    )
                 }
 
                 productUi?.render(result)
@@ -65,14 +83,26 @@ class ProductPresenter @Inject constructor(
             .map {
                 return@map if (lastState?.productId?.isNotEmpty() == true) {
                     ProductViewAction.LoadProductDetail(lastState?.productId!!)
-                } else if (lastState?.productDetail != null && lastState?.productDescription == null) {
+                } else if (lastState?.productDetail?.description == null) {
                     ProductViewAction.LoadProductDescription(lastState?.productDetail?.id!!)
                 } else {
                     ProductViewAction.RestoreLastState(lastState!!)
                 }
             }
 
-        retryIntent.subscribe(publishSubject)
+        val openCharacteristicIntent: Observable<ProductViewAction> = productUi?.openMoreCharacteristics()!!
+            .map { ProductViewAction.OpenFullCharacteristics(lastState?.productDetail!!) }
+
+        val openDescriptionIntent: Observable<ProductViewAction> = productUi?.openFullDescription()!!
+            .map { ProductViewAction.OpenFullDescription(lastState?.productDetail!!) }
+
+        val allIntents: Observable<ProductViewAction> = Observable.merge(
+            retryIntent,
+            openCharacteristicIntent,
+            openDescriptionIntent
+        )
+
+        allIntents.subscribe(publishSubject)
     }
 
     private fun loadProductOrRestoreLastState() {
@@ -100,7 +130,6 @@ class ProductPresenter @Inject constructor(
                     .setLoading(true)
                     .build()
             }
-
             is ProductPartialState.StateError -> {
                 previousState.builder()
                     .setProductId(partialChanges.productId)
@@ -108,7 +137,6 @@ class ProductPresenter @Inject constructor(
                     .setStateError(partialChanges.error)
                     .build()
             }
-
             is ProductPartialState.ProductDetailLoaded -> {
                 previousState.builder()
                     .setProductId(null)
@@ -119,14 +147,15 @@ class ProductPresenter @Inject constructor(
                     .setProductDetail(partialChanges.productDetail)
                     .build()
             }
-
             is ProductPartialState.ProductDescriptionLoaded -> {
                 previousState.builder()
                     .setLoading(false)
                     .setStateError(null)
                     .setProductPresentation(!previousState.isDescriptionPresentation)
                     .setDescriptionPresentation(true)
-                    .setProductDescription(partialChanges.productDescription)
+                    .setProductDetail(previousState.productDetail?.apply {
+                        description = partialChanges.productDescription
+                    })
                     .build()
             }
             is ProductPartialState.LastViewStateRestored -> {
@@ -134,9 +163,23 @@ class ProductPresenter @Inject constructor(
                     .setLoading(false)
                     .setStateError(partialChanges.lastViewState.stateError)
                     .setProductPresentation(partialChanges.lastViewState.productDetail != null)
-                    .setDescriptionPresentation(partialChanges.lastViewState.productDescription != null)
+                    .setDescriptionPresentation(partialChanges.lastViewState.productDetail?.description != null)
                     .setProductDetail(partialChanges.lastViewState.productDetail)
-                    .setProductDescription(partialChanges.lastViewState.productDescription)
+                    .build()
+            }
+            is ProductPartialState.FullCharacteristicsOpened -> {
+                previousState.builder()
+                    .setLoading(false)
+                    .setStateError(null)
+                    .setShowFullCharacteristics(true)
+                    .build()
+            }
+            is ProductPartialState.FullDescriptionOpened -> {
+                previousState.builder()
+                    .setLoading(false)
+                    .setStateError(null)
+                    .setShowFullCharacteristics(false)
+                    .setShowFullDescription(true)
                     .build()
             }
         }

@@ -1,6 +1,5 @@
 package br.com.productcatalog.screens.product
 
-import br.com.productcatalog.data.models.ProductDescription
 import br.com.productcatalog.data.models.ProductDetail
 
 data class ProductViewState(
@@ -12,10 +11,10 @@ data class ProductViewState(
     val isProductPresentation: Boolean = false,
     // indicates that's there's a new description to show
     val isDescriptionPresentation: Boolean = false,
+    val isShowFullCharacteristics: Boolean = false,
+    val isShowFullDescription: Boolean = false,
     // used to store data result from fetch a product detail
     val productDetail: ProductDetail? = null,
-    // used to store data result from fetch a product description
-    val productDescription: ProductDescription? = null,
     // indicates that's occurs some error while loading the product detail
     val stateError: Throwable? = null
 ) {
@@ -29,8 +28,9 @@ data class ProductViewState(
         private var isLoading = searchViewState.isLoading
         private var isProductPresentation = searchViewState.isProductPresentation
         private var isDescriptionPresentation = searchViewState.isDescriptionPresentation
+        private var isShowFullCharacteristics = searchViewState.isShowFullCharacteristics
+        private var isShowFullDescription = searchViewState.isShowFullDescription
         private var productDetail: ProductDetail? = searchViewState.productDetail
-        private var productDescription: ProductDescription? = searchViewState.productDescription
         private var stateError: Throwable? = searchViewState.stateError
 
         fun setProductId(productId: String?): Builder {
@@ -53,13 +53,18 @@ data class ProductViewState(
             return this
         }
 
-        fun setProductDetail(productDetail: ProductDetail??): Builder {
-            this.productDetail = productDetail
+        fun setShowFullCharacteristics(flag: Boolean): Builder {
+            this.isShowFullCharacteristics = flag
             return this
         }
 
-        fun setProductDescription(productDescription: ProductDescription?): Builder {
-            this.productDescription = productDescription
+        fun setShowFullDescription(flag: Boolean): Builder {
+            this.isShowFullDescription = flag
+            return this
+        }
+
+        fun setProductDetail(productDetail: ProductDetail??): Builder {
+            this.productDetail = productDetail
             return this
         }
 
@@ -74,8 +79,9 @@ data class ProductViewState(
                 isLoading,
                 isProductPresentation,
                 isDescriptionPresentation,
+                isShowFullCharacteristics,
+                isShowFullDescription,
                 productDetail,
-                productDescription,
                 stateError
             )
         }

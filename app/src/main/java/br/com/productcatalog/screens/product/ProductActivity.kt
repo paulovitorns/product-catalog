@@ -1,5 +1,6 @@
 package br.com.productcatalog.screens.product
 
+import android.content.Intent
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.Spanned
@@ -14,6 +15,7 @@ import br.com.productcatalog.data.search.NoResultFoundException
 import br.com.productcatalog.library.extension.toMoney
 import br.com.productcatalog.screens.BaseActivity
 import br.com.productcatalog.screens.BaseUi
+import br.com.productcatalog.screens.productdetails.ProductExtraDetailActivity
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.default_error_state.defaultErrorDescription
@@ -27,6 +29,8 @@ import kotlinx.android.synthetic.main.product_layout.descriptionDivider
 import kotlinx.android.synthetic.main.product_layout.descriptionEndDivider
 import kotlinx.android.synthetic.main.product_layout.descriptionTitle
 import kotlinx.android.synthetic.main.product_layout.gradientDescription
+import kotlinx.android.synthetic.main.product_layout.nextCharacteristics
+import kotlinx.android.synthetic.main.product_layout.nextDescription
 import kotlinx.android.synthetic.main.product_layout.photosSize
 import kotlinx.android.synthetic.main.product_layout.picturePager
 import kotlinx.android.synthetic.main.product_layout.price
@@ -40,6 +44,8 @@ import kotlinx.android.synthetic.main.search_not_found_state.notFoundDescription
 import java.net.UnknownHostException
 
 interface ProductUi : BaseUi {
+    fun openMoreCharacteristics(): Observable<Unit>
+    fun openFullDescription(): Observable<Unit>
     fun retryButton(): Observable<Unit>
     fun render(state: ProductViewState)
 }
@@ -64,6 +70,14 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun openMoreCharacteristics(): Observable<Unit> {
+        return characteristicsRecycler.clicks()
+    }
+
+    override fun openFullDescription(): Observable<Unit> {
+        return description.clicks()
+    }
+
     override fun retryButton(): Observable<Unit> {
         return retryButton.clicks()
     }
@@ -73,6 +87,14 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
 
         if (state.isLoading) {
             showProgress()
+            return
+        }
+
+        if (state.isShowFullDescription || state.isShowFullCharacteristics) {
+            Intent(this, ProductExtraDetailActivity::class.java).also {
+                startActivity(it)
+            }
+
             return
         }
 
@@ -96,9 +118,9 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
             }
         }
 
-        state.productDescription?.takeIf { state.isDescriptionPresentation }?.let {
+        state.productDetail?.description?.takeIf { state.isDescriptionPresentation }?.let {
             hideProgress()
-            showProductDescription(state.productDescription)
+            showProductDescription(it)
         }
     }
 
@@ -173,6 +195,7 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
 
         characteristicsRecycler.adapter = CharacteristicAdapter(productDetail.characteristics!!.getTopFourItems())
 
+        nextCharacteristics.isVisible = true
         characteristicsDivider.isVisible = true
         characteristics.isVisible = true
         characteristicsRecycler.isVisible = true
@@ -185,6 +208,7 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
             description.text = productDescription.plainText
         }
 
+        nextDescription.isVisible = true
         descriptionDivider.isVisible = true
         descriptionTitle.isVisible = true
         description.isVisible = true

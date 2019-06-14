@@ -6,6 +6,8 @@ import br.com.productcatalog.screens.product.ProductPartialState.Loading
 import br.com.productcatalog.screens.product.ProductViewAction
 import br.com.productcatalog.screens.product.ProductViewAction.LoadProductDescription
 import br.com.productcatalog.screens.product.ProductViewAction.LoadProductDetail
+import br.com.productcatalog.screens.product.ProductViewAction.OpenFullCharacteristics
+import br.com.productcatalog.screens.product.ProductViewAction.OpenFullDescription
 import br.com.productcatalog.screens.product.ProductViewAction.RestoreLastState
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -24,7 +26,9 @@ class ProductDetailComposer @Inject constructor(
                 Observable.mergeArray(
                     shared.ofType(LoadProductDetail::class.java).compose(fetchProductDetailAction()),
                     shared.ofType(LoadProductDescription::class.java).compose(fetchProductDescriptionAction()),
-                    shared.ofType(RestoreLastState::class.java).compose(restoreLastStateAction())
+                    shared.ofType(RestoreLastState::class.java).compose(restoreLastStateAction()),
+                    shared.ofType(OpenFullCharacteristics::class.java).compose(openFullCharacteristicsAction()),
+                    shared.ofType(OpenFullDescription::class.java).compose(openFullDescriptionAction())
                 )
             }
         }
@@ -57,6 +61,28 @@ class ProductDetailComposer @Inject constructor(
             observer.flatMap { action ->
                 Observable.just(action)
                     .map { productMapper.stateOf(action, it) }
+                    .onErrorReturn { productMapper.errorOf(action, it) }
+                    .startWith(Loading)
+            }
+        }
+    }
+
+    private fun openFullCharacteristicsAction(): ObservableTransformer<OpenFullCharacteristics, ProductPartialState> {
+        return ObservableTransformer { observer ->
+            observer.flatMap { action ->
+                Observable.just(action)
+                    .map { productMapper.stateOf(action, action.productDetail) }
+                    .onErrorReturn { productMapper.errorOf(action, it) }
+                    .startWith(Loading)
+            }
+        }
+    }
+
+    private fun openFullDescriptionAction(): ObservableTransformer<OpenFullDescription, ProductPartialState> {
+        return ObservableTransformer { observer ->
+            observer.flatMap { action ->
+                Observable.just(action)
+                    .map { productMapper.stateOf(action, action.productDescription) }
                     .onErrorReturn { productMapper.errorOf(action, it) }
                     .startWith(Loading)
             }

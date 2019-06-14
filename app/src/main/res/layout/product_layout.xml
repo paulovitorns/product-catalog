@@ -168,6 +168,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:text="@string/characteristics"/>
 
+            <ImageView
+                android:id="@+id/nextCharacteristics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_next"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:layout_constraintTop_toTopOf="@id/characteristics"
+                app:layout_constraintBottom_toBottomOf="@id/characteristics"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:contentDescription="@null"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/characteristicsRecycler"
                 android:layout_width="match_parent"
@@ -208,6 +221,19 @@
                 app:layout_constraintTop_toBottomOf="@id/characteristicsRecycler"
                 app:layout_constraintStart_toStartOf="parent"
                 android:text="@string/description"/>
+
+            <ImageView
+                android:id="@+id/nextDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_next"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:layout_constraintTop_toTopOf="@id/descriptionTitle"
+                app:layout_constraintBottom_toBottomOf="@id/descriptionTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:contentDescription="@null"/>
 
             <TextView
                 android:id="@+id/description"

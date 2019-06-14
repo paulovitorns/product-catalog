@@ -4,6 +4,8 @@ import br.com.productcatalog.data.models.ProductDescription
 import br.com.productcatalog.data.models.ProductDetail
 import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.screens.product.ProductPartialState
+import br.com.productcatalog.screens.product.ProductPartialState.FullCharacteristicsOpened
+import br.com.productcatalog.screens.product.ProductPartialState.FullDescriptionOpened
 import br.com.productcatalog.screens.product.ProductPartialState.LastViewStateRestored
 import br.com.productcatalog.screens.product.ProductPartialState.ProductDescriptionLoaded
 import br.com.productcatalog.screens.product.ProductPartialState.ProductDetailLoaded
@@ -11,6 +13,8 @@ import br.com.productcatalog.screens.product.ProductPartialState.StateError
 import br.com.productcatalog.screens.product.ProductViewAction
 import br.com.productcatalog.screens.product.ProductViewAction.LoadProductDescription
 import br.com.productcatalog.screens.product.ProductViewAction.LoadProductDetail
+import br.com.productcatalog.screens.product.ProductViewAction.OpenFullCharacteristics
+import br.com.productcatalog.screens.product.ProductViewAction.OpenFullDescription
 import br.com.productcatalog.screens.product.ProductViewAction.RestoreLastState
 import javax.inject.Inject
 
@@ -22,6 +26,8 @@ class ProductResultMapper @Inject constructor() {
             is LoadProductDetail -> ProductDetailLoaded(result as ProductDetail)
             is LoadProductDescription -> ProductDescriptionLoaded(result as ProductDescription)
             is RestoreLastState -> LastViewStateRestored(action.lastViewState)
+            is OpenFullCharacteristics -> FullCharacteristicsOpened(result as ProductDetail)
+            is OpenFullDescription -> FullDescriptionOpened(result as ProductDetail)
         }
     }
 

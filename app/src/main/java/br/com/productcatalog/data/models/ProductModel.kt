@@ -19,7 +19,8 @@ data class ProductDetail(
     val permalink: String,
     val pictures: List<Picture>,
     val shipping: Shipping?,
-    @SerialName("attributes") val characteristics: List<Characteristic>?
+    @SerialName("attributes") val characteristics: List<Characteristic>?,
+    var description: ProductDescription? = null
 )
 
 @Serializable
