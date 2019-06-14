@@ -70,11 +70,12 @@ class SearchPresenter @Inject constructor(
             .compose(searchActionComposer.bindActions())
             .compose(applyObservableSchedulers(schedulerProvider))
             .scan(initialState, this::viewStateReducer)
+            .distinctUntilChanged()
             .subscribe({ result ->
                 lastViewState = result
 
                 if (!result.productId.isNullOrBlank()) {
-                    stateStore.save(ProductUi::class, result.productId!!)
+                    stateStore.save(ProductUi::class, result.productId)
                 }
 
                 searchUi?.render(result)
@@ -90,7 +91,7 @@ class SearchPresenter @Inject constructor(
 
         val searchViewIntent: Observable<SearchViewAction> = searchUi?.search()!!
             .debounce(500, TimeUnit.MILLISECONDS, schedulerProvider.workerThread())
-            .filter { typed -> typed.isNotEmpty() && typed.length > 1 }
+            .filter { it.trim().isNotEmpty() }
             .filter { typed -> typed != lastViewState?.searchResult?.query }
             .map { queryString -> SearchViewAction.SearchProduct(queryString) }
 
@@ -114,30 +115,28 @@ class SearchPresenter @Inject constructor(
         allIntents.subscribe(publishSubject)
     }
 
-    private fun viewStateReducer(
-        previousState: SearchViewState,
-        partialChanges: PartialStateChanged
-    ): SearchViewState {
+    private fun viewStateReducer(previousState: SearchViewState, partialChanges: PartialStateChanged): SearchViewState {
         return when (partialChanges) {
             is PartialStateChanged.Loading -> {
-                previousState.nextState { isLoading = true }
+                previousState.builder()
+                    .setStateError(null)
+                    .setLoading(true)
+                    .build()
             }
             is PartialStateChanged.StateError -> {
-                previousState.nextState {
-                    isLoading = false
-                    hasLoadedAllPages = partialChanges.error is AllItemsLoadedException
-                    stateError = partialChanges.error
-                }
+                previousState.builder()
+                    .setLoading(false)
+                    .setLoadedAllPages(partialChanges.error is AllItemsLoadedException)
+                    .setStateError(partialChanges.error)
+                    .build()
             }
             is PartialStateChanged.SearchProductsLoaded -> {
-                previousState.nextState {
-                    isLoading = false
-                    stateError = null
-                    isSearchPresentation = true
-                    isNextPagePresentation = false
-                    hasLoadedAllPages = false
-                    searchResult = partialChanges.searchResult
-                }
+                previousState.builder()
+                    .setLoading(false)
+                    .setSearchPresentation(true)
+                    .setSearchResult(partialChanges.searchResult)
+                    .setStateError(null)
+                    .build()
             }
             is PartialStateChanged.NextPageLoaded -> {
                 // Retrieve previous products list
@@ -150,31 +149,32 @@ class SearchPresenter @Inject constructor(
                 // Make sure that we'll have a consistency data inside our NextPageLoaded state
                 partialChanges.searchResult.results = data
 
-                previousState.nextState {
-                    isLoading = false
-                    stateError = null
-                    isSearchPresentation = false
-                    isNextPagePresentation = true
-                    searchResult = partialChanges.searchResult
-                }
+                previousState.builder()
+                    .setLoading(false)
+                    .setStateError(null)
+                    .setSearchPresentation(false)
+                    .setNextPagePresentation(true)
+                    .setSearchResult(partialChanges.searchResult)
+                    .build()
             }
             is PartialStateChanged.LastViewStateRestored -> {
-                previousState.nextState {
-                    isLoading = false
-                    stateError = null
-                    isSearchPresentation = true
-                    isNextPagePresentation = false
-                    searchResult = partialChanges.lastViewState.searchResult
-                }
+                previousState.builder()
+                    .setLoading(false)
+                    .setSearchPresentation(true)
+                    .setNextPagePresentation(false)
+                    .setLoadedAllPages(partialChanges.lastViewState.hasLoadedAllPages)
+                    .setSearchResult(partialChanges.lastViewState.searchResult)
+                    .setStateError(null)
+                    .build()
             }
             is PartialStateChanged.ProductDetailOpened -> {
-                previousState.nextState {
-                    isLoading = false
-                    stateError = null
-                    isSearchPresentation = false
-                    isNextPagePresentation = false
-                    productId = partialChanges.productId
-                }
+                previousState.builder()
+                    .setLoading(false)
+                    .setSearchPresentation(false)
+                    .setNextPagePresentation(false)
+                    .setStateError(null)
+                    .setProductId(partialChanges.productId)
+                    .build()
             }
         }
     }

@@ -4,23 +4,81 @@ import br.com.productcatalog.data.models.SearchResult
 
 data class SearchViewState(
     // indicates that's there's something working
-    var isLoading: Boolean = false,
+    val isLoading: Boolean = false,
     // indicates that's there's a fresh search to show
-    var isSearchPresentation: Boolean = false,
+    val isSearchPresentation: Boolean = false,
     // indicates that's there's a new page to show
-    var isNextPagePresentation: Boolean = false,
+    val isNextPagePresentation: Boolean = false,
     // indicates that's has loaded all the pages
-    var hasLoadedAllPages: Boolean = false,
+    val hasLoadedAllPages: Boolean = false,
     // used to store data result from search products and load next page products
-    var searchResult: SearchResult? = null,
+    val searchResult: SearchResult? = null,
     // used to store data result from search products and load next page products
-    var productId: String? = null,
+    val productId: String? = null,
     // indicates that's occurs some error while loading the next page
-    var stateError: Throwable? = null
-)
+    val stateError: Throwable? = null
+) {
 
-fun SearchViewState.nextState(data: SearchViewState.() -> Unit): SearchViewState {
-    return this.apply(data)
+    fun builder(): Builder {
+        return Builder(this)
+    }
+
+    class Builder(searchViewState: SearchViewState) {
+        private var isLoading = searchViewState.isLoading
+        private var isSearchPresentation = searchViewState.isSearchPresentation
+        private var isNextPagePresentation = searchViewState.isNextPagePresentation
+        private var hasLoadedAllPages = searchViewState.hasLoadedAllPages
+        private var searchResult: SearchResult? = searchViewState.searchResult
+        private var productId: String? = searchViewState.productId
+        private var stateError: Throwable? = searchViewState.stateError
+
+        fun setLoading(flag: Boolean): Builder {
+            isLoading = flag
+            return this
+        }
+
+        fun setSearchPresentation(flag: Boolean): Builder {
+            this.isSearchPresentation = flag
+            return this
+        }
+
+        fun setNextPagePresentation(flag: Boolean): Builder {
+            this.isNextPagePresentation = flag
+            return this
+        }
+
+        fun setLoadedAllPages(flag: Boolean): Builder {
+            this.hasLoadedAllPages = flag
+            return this
+        }
+
+        fun setSearchResult(searchResult: SearchResult?): Builder {
+            this.searchResult = searchResult
+            return this
+        }
+
+        fun setProductId(productId: String?): Builder {
+            this.productId = productId
+            return this
+        }
+
+        fun setStateError(error: Throwable?): Builder {
+            this.stateError = error
+            return this
+        }
+
+        fun build(): SearchViewState {
+            return SearchViewState(
+                isLoading,
+                isSearchPresentation,
+                isNextPagePresentation,
+                hasLoadedAllPages,
+                searchResult,
+                productId,
+                stateError
+            )
+        }
+    }
 }
 
 sealed class SearchViewAction {

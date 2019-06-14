@@ -123,7 +123,7 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
         if (viewState.stateError != null) {
             when (viewState.stateError) {
                 is NoResultFoundException -> {
-                    showSearchError((viewState.stateError as NoResultFoundException).queryString)
+                    showSearchError(viewState.stateError.queryString)
                 }
                 is AllItemsLoadedException -> showAllItemsLoaded()
                 is UnknownHostException -> showOfflineState()
@@ -132,13 +132,13 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
             return
         }
 
-        viewState.searchResult.takeIf { viewState.isSearchPresentation && viewState.stateError == null }?.let {
+        viewState.searchResult.takeIf { viewState.isSearchPresentation }?.let {
             hideProgress()
             showSearchResult(it)
             return
         }
 
-        viewState.searchResult.takeIf { viewState.isNextPagePresentation && viewState.stateError == null }?.let {
+        viewState.searchResult.takeIf { viewState.isNextPagePresentation }?.let {
             hideProgress()
             showNextPage(it)
             return
