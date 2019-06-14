@@ -36,7 +36,7 @@ class SearchActionComposer @Inject constructor(
             observer.flatMap { action ->
                 mlbSearchProduct(action.queryString)
                     .map { result -> searchResultMapper.stateOf(action, result) }
-                    .onErrorReturn { error -> searchResultMapper.errorOf(error) }
+                    .onErrorReturn { searchResultMapper.errorOf(action, it) }
                     .startWith(PartialStateChanged.Loading)
             }
         }
@@ -47,7 +47,7 @@ class SearchActionComposer @Inject constructor(
             observer.flatMap { action ->
                 loadNextPage(action.lastPage)
                     .map { result -> searchResultMapper.stateOf(action, result) }
-                    .onErrorReturn { error -> searchResultMapper.errorOf(error) }
+                    .onErrorReturn { searchResultMapper.errorOf(action, it) }
                     .startWith(PartialStateChanged.Loading)
             }
         }
@@ -58,7 +58,7 @@ class SearchActionComposer @Inject constructor(
             observer.flatMap { action ->
                 Observable.just(action)
                     .map { searchResultMapper.stateOf(action, it) }
-                    .onErrorReturn { error -> searchResultMapper.errorOf(error) }
+                    .onErrorReturn { searchResultMapper.errorOf(action, it) }
                     .startWith(PartialStateChanged.Loading)
             }
         }
@@ -69,7 +69,7 @@ class SearchActionComposer @Inject constructor(
             observer.flatMap { action ->
                 Observable.just(action)
                     .map { searchResultMapper.stateOf(action, action.productId) }
-                    .onErrorReturn { error -> searchResultMapper.errorOf(error) }
+                    .onErrorReturn { searchResultMapper.errorOf(action, it) }
                     .startWith(PartialStateChanged.Loading)
             }
         }

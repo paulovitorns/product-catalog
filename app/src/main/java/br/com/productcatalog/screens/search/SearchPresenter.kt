@@ -16,6 +16,7 @@ import br.com.productcatalog.screens.home.HomeUi
 import br.com.productcatalog.screens.product.ProductUi
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -96,14 +97,19 @@ class SearchPresenter @Inject constructor(
             .map { queryString -> SearchViewAction.SearchProduct(queryString) }
 
         val nextPage: Observable<SearchViewAction> = searchUi?.loadNextPage()!!
-            .filter { lastViewState != null }
             .filter { lastViewState is SearchViewState }
             .filter { lastViewState?.hasLoadedAllPages == false }
             .map { SearchViewAction.LoadNextPage(lastViewState?.searchResult!!) }
 
         val retryIntent: Observable<SearchViewAction> = searchUi?.retryButton()!!
-            .filter { lastViewState != null && lastViewState is SearchViewState }
-            .map { SearchViewAction.RestoreLastState(lastViewState!!) }
+            .filter { lastViewState?.stateError is UnknownHostException }
+            .map {
+                return@map if (lastViewState?.lastQueryString?.isNotEmpty() == true) {
+                    SearchViewAction.SearchProduct(lastViewState?.lastQueryString!!)
+                } else {
+                    SearchViewAction.RestoreLastState(lastViewState!!)
+                }
+            }
 
         val allIntents: Observable<SearchViewAction> = Observable.merge(
             searchViewIntent,
@@ -125,6 +131,7 @@ class SearchPresenter @Inject constructor(
             }
             is PartialStateChanged.StateError -> {
                 previousState.builder()
+                    .setLastQueryString(partialChanges.queryString)
                     .setLoading(false)
                     .setLoadedAllPages(partialChanges.error is AllItemsLoadedException)
                     .setStateError(partialChanges.error)

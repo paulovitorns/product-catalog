@@ -27,7 +27,10 @@ class SearchResultMapper @Inject constructor() {
         }
     }
 
-    fun errorOf(error: Throwable): PartialStateChanged {
-        return StateError(error)
+    fun errorOf(action: SearchViewAction, error: Throwable): PartialStateChanged {
+        return when (action) {
+            is SearchProduct -> StateError(error, action.queryString)
+            else -> StateError(error)
+        }
     }
 }

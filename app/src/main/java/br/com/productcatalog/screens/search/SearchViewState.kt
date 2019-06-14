@@ -3,6 +3,8 @@ package br.com.productcatalog.screens.search
 import br.com.productcatalog.data.models.SearchResult
 
 data class SearchViewState(
+    // stored the first query string to be used in case of lost connection before load the first page
+    val lastQueryString: String? = null,
     // indicates that's there's something working
     val isLoading: Boolean = false,
     // indicates that's there's a fresh search to show
@@ -24,6 +26,7 @@ data class SearchViewState(
     }
 
     class Builder(searchViewState: SearchViewState) {
+        private var lastQueryString: String? = searchViewState.lastQueryString
         private var isLoading = searchViewState.isLoading
         private var isSearchPresentation = searchViewState.isSearchPresentation
         private var isNextPagePresentation = searchViewState.isNextPagePresentation
@@ -31,6 +34,11 @@ data class SearchViewState(
         private var searchResult: SearchResult? = searchViewState.searchResult
         private var productId: String? = searchViewState.productId
         private var stateError: Throwable? = searchViewState.stateError
+
+        fun setLastQueryString(queryString: String?): Builder {
+            this.lastQueryString = queryString
+            return this
+        }
 
         fun setLoading(flag: Boolean): Builder {
             isLoading = flag
@@ -69,6 +77,7 @@ data class SearchViewState(
 
         fun build(): SearchViewState {
             return SearchViewState(
+                lastQueryString,
                 isLoading,
                 isSearchPresentation,
                 isNextPagePresentation,

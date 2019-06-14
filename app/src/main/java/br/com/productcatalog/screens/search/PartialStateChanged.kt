@@ -8,5 +8,5 @@ sealed class PartialStateChanged {
     data class NextPageLoaded(val searchResult: SearchResult) : PartialStateChanged()
     data class LastViewStateRestored(val lastViewState: SearchViewState) : PartialStateChanged()
     data class ProductDetailOpened(val productId: String) : PartialStateChanged()
-    data class StateError(val error: Throwable) : PartialStateChanged()
+    data class StateError(val error: Throwable, val queryString: String? = null) : PartialStateChanged()
 }
