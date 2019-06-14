@@ -23,15 +23,32 @@
             app:expandedTitleTextAppearance="@android:color/transparent"
             android:fitsSystemWindows="true">
 
+            <include
+                android:id="@+id/offlineState"
+                android:visibility="gone"
+                tools:visibility="visible"
+                layout="@layout/offline_state"/>
+
+            <include
+                android:id="@+id/searchNotFound"
+                android:visibility="gone"
+                tools:visibility="visible"
+                layout="@layout/search_not_found_state"/>
+
+            <include
+                android:id="@+id/defaultError"
+                android:visibility="gone"
+                tools:visibility="visible"
+                layout="@layout/default_error_state"/>
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <ImageView
-                    android:id="@+id/productImage"
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/picturePager"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@null"/>
+                    android:layout_height="match_parent"/>
 
                 <TextView
                     android:id="@+id/photosSize"

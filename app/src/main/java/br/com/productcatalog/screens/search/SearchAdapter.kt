@@ -45,7 +45,6 @@ class SearchAdapter(
                 Glide.with(context)
                     .load(item.thumbnail)
                     .into(image)
-                    .clearOnDetach()
             }
         }
     }

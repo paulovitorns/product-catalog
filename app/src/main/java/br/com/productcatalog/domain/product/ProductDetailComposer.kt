@@ -35,7 +35,7 @@ class ProductDetailComposer @Inject constructor(
             observer.flatMap { action ->
                 getProductDetailUseCase(action.productId)
                     .map { productMapper.stateOf(action, it) }
-                    .onErrorReturn { productMapper.errorOf(it) }
+                    .onErrorReturn { productMapper.errorOf(action, it) }
                     .startWith(Loading)
             }
         }
@@ -46,7 +46,7 @@ class ProductDetailComposer @Inject constructor(
             observer.flatMap { action ->
                 getProductDescriptionUseCase(action.productId)
                     .map { productMapper.stateOf(action, it) }
-                    .onErrorReturn { productMapper.errorOf(it) }
+                    .onErrorReturn { productMapper.errorOf(action, it) }
                     .startWith(Loading)
             }
         }
@@ -57,7 +57,7 @@ class ProductDetailComposer @Inject constructor(
             observer.flatMap { action ->
                 Observable.just(action)
                     .map { productMapper.stateOf(action, it) }
-                    .onErrorReturn { error -> productMapper.errorOf(error) }
+                    .onErrorReturn { productMapper.errorOf(action, it) }
                     .startWith(Loading)
             }
         }

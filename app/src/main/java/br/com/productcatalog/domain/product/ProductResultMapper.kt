@@ -25,7 +25,10 @@ class ProductResultMapper @Inject constructor() {
         }
     }
 
-    fun errorOf(error: Throwable): ProductPartialState {
-        return StateError(error)
+    fun errorOf(action: ProductViewAction, error: Throwable): ProductPartialState {
+        return when (action) {
+            is LoadProductDetail -> StateError(error, action.productId)
+            else -> StateError(error)
+        }
     }
 }

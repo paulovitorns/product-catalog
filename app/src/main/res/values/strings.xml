@@ -10,6 +10,8 @@
     <string name="all_items_loaded">Já exibimos todos os produtos</string>
     <string name="search_not_found_title">Hmm, foi mal!</string>
     <string name="search_not_found_description">Não encontramos nenhum produto para essa palavra-chave %s</string>
+    <string name="generic_error_message">Alguma coisa deu errado, por favor, verifique a sua palavra-chave usada na busca.</string>
+    <string name="malformed_product_id">Não conseguimos carregar os detalhes deste produto.</string>
     <string name="interest_free">sem juros</string>
     <string name="free_shipping">Frete grátis</string>
     <string name="num_photos">%s fotos</string>

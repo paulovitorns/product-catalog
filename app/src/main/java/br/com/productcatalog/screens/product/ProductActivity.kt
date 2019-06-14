@@ -1,15 +1,23 @@
 package br.com.productcatalog.screens.product
 
+import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StyleSpan
 import android.view.MenuItem
 import androidx.core.view.isVisible
-import androidx.transition.TransitionManager
 import br.com.productcatalog.R
 import br.com.productcatalog.data.models.Characteristic
 import br.com.productcatalog.data.models.ProductDescription
 import br.com.productcatalog.data.models.ProductDetail
+import br.com.productcatalog.data.search.NoResultFoundException
 import br.com.productcatalog.library.extension.toMoney
 import br.com.productcatalog.screens.BaseActivity
 import br.com.productcatalog.screens.BaseUi
+import com.jakewharton.rxbinding3.view.clicks
+import io.reactivex.Observable
+import kotlinx.android.synthetic.main.default_error_state.defaultErrorDescription
+import kotlinx.android.synthetic.main.offline_state.retryButton
 import kotlinx.android.synthetic.main.product_layout.appToolbar
 import kotlinx.android.synthetic.main.product_layout.characteristics
 import kotlinx.android.synthetic.main.product_layout.characteristicsDivider
@@ -18,16 +26,21 @@ import kotlinx.android.synthetic.main.product_layout.description
 import kotlinx.android.synthetic.main.product_layout.descriptionDivider
 import kotlinx.android.synthetic.main.product_layout.descriptionEndDivider
 import kotlinx.android.synthetic.main.product_layout.descriptionTitle
-import kotlinx.android.synthetic.main.product_layout.detailsContainer
 import kotlinx.android.synthetic.main.product_layout.gradientDescription
 import kotlinx.android.synthetic.main.product_layout.photosSize
+import kotlinx.android.synthetic.main.product_layout.picturePager
 import kotlinx.android.synthetic.main.product_layout.price
 import kotlinx.android.synthetic.main.product_layout.productTitle
 import kotlinx.android.synthetic.main.product_layout.progress
 import kotlinx.android.synthetic.main.product_layout.statusProduct
+import kotlinx.android.synthetic.main.search_layout.defaultError
+import kotlinx.android.synthetic.main.search_layout.offlineState
+import kotlinx.android.synthetic.main.search_layout.searchNotFound
+import kotlinx.android.synthetic.main.search_not_found_state.notFoundDescription
+import java.net.UnknownHostException
 
 interface ProductUi : BaseUi {
-
+    fun retryButton(): Observable<Unit>
     fun render(state: ProductViewState)
 }
 
@@ -51,9 +64,26 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun retryButton(): Observable<Unit> {
+        return retryButton.clicks()
+    }
+
     override fun render(state: ProductViewState) {
+        hideAllErrorsState()
+
         if (state.isLoading) {
             showProgress()
+            return
+        }
+
+        if (state.stateError != null) {
+            when (state.stateError) {
+                is NoResultFoundException -> {
+                    showSearchError(state.stateError.queryString)
+                }
+                is UnknownHostException -> showOfflineState()
+                else -> showDefaultError()
+            }
             return
         }
 
@@ -72,11 +102,49 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
         }
     }
 
+    private fun hideAllErrorsState() {
+        searchNotFound.isVisible = false
+        defaultError.isVisible = false
+        offlineState.isVisible = false
+    }
+
+    private fun showDefaultError() {
+        defaultErrorDescription.setText(R.string.malformed_product_id)
+        defaultError.isVisible = true
+        hideProgress()
+    }
+
+    private fun showOfflineState() {
+        offlineState.isVisible = true
+        hideProgress()
+    }
+
+    private fun showSearchError(queryString: String) {
+        val descriptionFormatted = notFoundDescription.text.toString().format(queryString)
+
+        // This will set the queryString to bold
+        val spannableString = SpannableString(descriptionFormatted).apply {
+            setSpan(
+                StyleSpan(Typeface.BOLD),
+                descriptionFormatted.length - queryString.length,
+                descriptionFormatted.length,
+                Spanned.SPAN_INCLUSIVE_INCLUSIVE
+            )
+        }
+
+        notFoundDescription.text = spannableString
+        searchNotFound.isVisible = true
+        hideProgress()
+    }
+
     private fun showPhotoGallery(productDetail: ProductDetail) {
         if (productDetail.pictures.isNotEmpty()) {
             val format = getString(R.string.num_photos)
             photosSize.text = format.format(productDetail.pictures.size)
             photosSize.isVisible = true
+
+            val productImageAdapter = ProductImageAdapter(this, productDetail.pictures)
+            picturePager.adapter = productImageAdapter
         }
     }
 
@@ -108,7 +176,6 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
         characteristicsDivider.isVisible = true
         characteristics.isVisible = true
         characteristicsRecycler.isVisible = true
-        TransitionManager.beginDelayedTransition(detailsContainer)
     }
 
     private fun showProductDescription(productDescription: ProductDescription) {
@@ -123,7 +190,6 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
         description.isVisible = true
         gradientDescription.isVisible = true
         descriptionEndDivider.isVisible = true
-        TransitionManager.beginDelayedTransition(detailsContainer)
     }
 
     private fun showProgress() {

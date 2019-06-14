@@ -9,7 +9,9 @@ import br.com.productcatalog.library.reactivex.withDelay
 import br.com.productcatalog.library.state.StateStore
 import br.com.productcatalog.screens.BasePresenter
 import br.com.productcatalog.screens.BaseUi
+import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class ProductPresenter @Inject constructor(
@@ -49,7 +51,7 @@ class ProductPresenter @Inject constructor(
             .subscribe({ result ->
                 lastState = result
 
-                if (result.productDetail != null && result.productDescription == null) {
+                if (result.productDetail != null && result.productDescription == null && result.stateError == null) {
                     publishSubject.onNext(ProductViewAction.LoadProductDescription(result.productDetail.id))
                 }
 
@@ -57,6 +59,20 @@ class ProductPresenter @Inject constructor(
             }, { error ->
                 Log.e("SEARCH", error.message)
             }).addDisposableTo(disposeBag)
+
+        val retryIntent: Observable<ProductViewAction> = productUi?.retryButton()!!
+            .filter { lastState?.stateError is UnknownHostException }
+            .map {
+                return@map if (lastState?.productId?.isNotEmpty() == true) {
+                    ProductViewAction.LoadProductDetail(lastState?.productId!!)
+                } else if (lastState?.productDetail != null && lastState?.productDescription == null) {
+                    ProductViewAction.LoadProductDescription(lastState?.productDetail?.id!!)
+                } else {
+                    ProductViewAction.RestoreLastState(lastState!!)
+                }
+            }
+
+        retryIntent.subscribe(publishSubject)
     }
 
     private fun loadProductOrRestoreLastState() {
@@ -87,6 +103,7 @@ class ProductPresenter @Inject constructor(
 
             is ProductPartialState.StateError -> {
                 previousState.builder()
+                    .setProductId(partialChanges.productId)
                     .setLoading(false)
                     .setStateError(partialChanges.error)
                     .build()
@@ -94,6 +111,7 @@ class ProductPresenter @Inject constructor(
 
             is ProductPartialState.ProductDetailLoaded -> {
                 previousState.builder()
+                    .setProductId(null)
                     .setLoading(false)
                     .setStateError(null)
                     .setProductPresentation(true)
@@ -106,7 +124,7 @@ class ProductPresenter @Inject constructor(
                 previousState.builder()
                     .setLoading(false)
                     .setStateError(null)
-                    .setProductPresentation(false)
+                    .setProductPresentation(!previousState.isDescriptionPresentation)
                     .setDescriptionPresentation(true)
                     .setProductDescription(partialChanges.productDescription)
                     .build()

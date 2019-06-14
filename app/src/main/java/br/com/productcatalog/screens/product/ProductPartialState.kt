@@ -8,5 +8,5 @@ sealed class ProductPartialState {
     data class ProductDetailLoaded(val productDetail: ProductDetail) : ProductPartialState()
     data class ProductDescriptionLoaded(val productDescription: ProductDescription) : ProductPartialState()
     data class LastViewStateRestored(val lastViewState: ProductViewState) : ProductPartialState()
-    data class StateError(val error: Throwable) : ProductPartialState()
+    data class StateError(val error: Throwable, val productId: String? = null) : ProductPartialState()
 }

@@ -4,6 +4,8 @@ import br.com.productcatalog.data.models.ProductDescription
 import br.com.productcatalog.data.models.ProductDetail
 
 data class ProductViewState(
+    // stored the product Id to be used in case of lost connection os something like that
+    val productId: String? = null,
     // indicates that's there's something working
     val isLoading: Boolean = false,
     // indicates that's there's a fresh product to show
@@ -23,12 +25,18 @@ data class ProductViewState(
     }
 
     class Builder(searchViewState: ProductViewState) {
+        private var productId: String? = searchViewState.productId
         private var isLoading = searchViewState.isLoading
         private var isProductPresentation = searchViewState.isProductPresentation
         private var isDescriptionPresentation = searchViewState.isDescriptionPresentation
         private var productDetail: ProductDetail? = searchViewState.productDetail
         private var productDescription: ProductDescription? = searchViewState.productDescription
         private var stateError: Throwable? = searchViewState.stateError
+
+        fun setProductId(productId: String?): Builder {
+            this.productId = productId
+            return this
+        }
 
         fun setLoading(flag: Boolean): Builder {
             isLoading = flag
@@ -62,6 +70,7 @@ data class ProductViewState(
 
         fun build(): ProductViewState {
             return ProductViewState(
+                productId,
                 isLoading,
                 isProductPresentation,
                 isDescriptionPresentation,

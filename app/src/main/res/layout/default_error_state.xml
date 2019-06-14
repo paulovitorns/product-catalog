@@ -5,7 +5,7 @@
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/notFoundTitle"
+        android:id="@+id/defaultErrorTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/search_not_found_title"
@@ -19,15 +19,15 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
-        android:id="@+id/notFoundDescription"
+        android:id="@+id/defaultErrorDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/search_not_found_description"
+        android:text="@string/generic_error_message"
         style="@style/TextSubHead"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        app:layout_constraintTop_toBottomOf="@id/notFoundTitle"
+        app:layout_constraintTop_toBottomOf="@id/defaultErrorTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
