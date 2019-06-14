@@ -44,6 +44,10 @@
         <item name="android:textColor">@color/brown</item>
     </style>
 
+    <style name="Text.Body.Medium" parent="Text.Body">
+        <item name="android:fontFamily">"sans-serif-medium"</item>
+    </style>
+
     <style name="Button.BaseButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:fontFamily">"sans-serif-medium"</item>
         <item name="android:textAllCaps">false</item>

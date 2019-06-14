@@ -19,6 +19,6 @@ abstract class ActivityBindingModule {
     abstract fun searchActivity(): SearchActivity
 
     @ActivityScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [ProductDetailModule::class])
     abstract fun productActivity(): ProductActivity
 }

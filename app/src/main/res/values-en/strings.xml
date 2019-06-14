@@ -13,4 +13,10 @@
     <string name="search_not_found_description">Seems like we can\'t found anything with %s</string>
     <string name="interest_free">interest-free</string>
     <string name="free_shipping">Free shipping</string>
+    <string name="num_photos">%s photos</string>
+    <string name="products_status">%s - %s solds</string>
+    <string name="new_product">New</string>
+    <string name="used_product">Used</string>
+    <string name="characteristics">Characteristics</string>
+    <string name="description">Description</string>
 </resources>

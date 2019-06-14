@@ -12,4 +12,10 @@
     <string name="search_not_found_description">Não encontramos nenhum produto para essa palavra-chave %s</string>
     <string name="interest_free">sem juros</string>
     <string name="free_shipping">Frete grátis</string>
+    <string name="num_photos">%s fotos</string>
+    <string name="products_status">%s - %s vendidos</string>
+    <string name="new_product">Novo</string>
+    <string name="used_product">Usado</string>
+    <string name="characteristics">Características</string>
+    <string name="description">Descrição</string>
 </resources>
