@@ -12,7 +12,8 @@ import br.com.productcatalog.R
 import br.com.productcatalog.data.models.Characteristic
 import br.com.productcatalog.data.models.ProductDescription
 import br.com.productcatalog.data.models.ProductDetail
-import br.com.productcatalog.data.search.NoResultFoundException
+import br.com.productcatalog.data.product.DescriptionNotFoundException
+import br.com.productcatalog.data.search.ResultNotFoundException
 import br.com.productcatalog.library.extension.color
 import br.com.productcatalog.library.extension.toMoney
 import br.com.productcatalog.library.extension.topAlignDecimalChars
@@ -117,10 +118,13 @@ class ProductActivity : BaseActivity<ProductPresenter>(), ProductUi {
 
         if (state.stateError != null) {
             when (state.stateError) {
-                is NoResultFoundException -> {
+                is ResultNotFoundException -> {
                     showSearchError(state.stateError.queryString)
                 }
                 is UnknownHostException -> showOfflineState()
+                is DescriptionNotFoundException -> {
+                    // do nothing here
+                }
                 else -> showDefaultError()
             }
             hideProgress()

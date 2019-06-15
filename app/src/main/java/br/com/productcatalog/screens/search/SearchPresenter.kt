@@ -3,7 +3,7 @@ package br.com.productcatalog.screens.search
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import br.com.productcatalog.data.models.ProductResult
-import br.com.productcatalog.domain.search.AllItemsLoadedException
+import br.com.productcatalog.data.search.AllItemsLoadedException
 import br.com.productcatalog.domain.search.SearchActionComposer
 import br.com.productcatalog.library.injection.scope.ActivityScope
 import br.com.productcatalog.library.reactivex.SchedulerProvider

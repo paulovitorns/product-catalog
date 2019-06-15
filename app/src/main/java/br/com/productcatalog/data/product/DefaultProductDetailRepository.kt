@@ -2,11 +2,13 @@ package br.com.productcatalog.data.product
 
 import br.com.productcatalog.data.models.ProductDescription
 import br.com.productcatalog.data.models.ProductDetail
-import br.com.productcatalog.data.search.NoResultFoundException
+import br.com.productcatalog.data.search.ResultNotFoundException
 import br.com.productcatalog.domain.product.ProductDetailRepository
 import br.com.productcatalog.library.retrofit.endpoint.ProductDetailEndpoint
 import io.reactivex.Observable
 import javax.inject.Inject
+
+class DescriptionNotFoundException : Throwable()
 
 class DefaultProductDetailRepository @Inject constructor(
     private val productDetailEndpoint: ProductDetailEndpoint
@@ -17,7 +19,7 @@ class DefaultProductDetailRepository @Inject constructor(
             when (response.code()) {
                 200 -> {
                     val responseBody = response.body()
-                    responseBody ?: throw NoResultFoundException(productId)
+                    responseBody ?: throw ResultNotFoundException(productId)
                 }
                 else -> throw IllegalArgumentException(response.errorBody().toString())
             }
@@ -29,7 +31,7 @@ class DefaultProductDetailRepository @Inject constructor(
             when (response.code()) {
                 200 -> {
                     val responseBody = response.body()
-                    responseBody ?: throw NoResultFoundException(productId)
+                    responseBody ?: throw DescriptionNotFoundException()
                 }
                 else -> throw IllegalArgumentException(response.errorBody().toString())
             }

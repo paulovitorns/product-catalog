@@ -1,4 +1,4 @@
-package br.com.productcatalog.domain
+package br.com.productcatalog.domain.search
 
 import org.junit.Test
 

@@ -1,12 +1,12 @@
 package br.com.productcatalog.screens
 
-import br.com.productcatalog.domain.CleanQueryStringUseCase
+import br.com.productcatalog.domain.search.CleanQueryStringUseCase
 import br.com.productcatalog.library.state.StateStore
 import br.com.productcatalog.screens.home.HomePresenter
 import br.com.productcatalog.screens.home.HomeUi
-import com.nhaarman.mockito_kotlin.given
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.given
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Test
 
 class HomePresenterTest {
@@ -24,7 +24,7 @@ class HomePresenterTest {
     fun `show search screen passing a regular query string`() {
         val query = "Google Pixel 3A"
 
-        given(verifyQueryStringUseCase(query)).willReturn(query)
+        given { verifyQueryStringUseCase(query) }.willReturn(query)
         val expected = verifyQueryStringUseCase(query)
 
         dashboardPresenter.onSendSearch(query)
@@ -36,7 +36,7 @@ class HomePresenterTest {
     fun `show search screen passing a irregular query string`() {
         val query = "  Google   Pixel    3A "
 
-        given(verifyQueryStringUseCase(query)).willReturn("Google Pixel 3A")
+        given { verifyQueryStringUseCase(query) }.willReturn("Google Pixel 3A")
         val expected = verifyQueryStringUseCase(query)
 
         dashboardPresenter.onSendSearch(query)

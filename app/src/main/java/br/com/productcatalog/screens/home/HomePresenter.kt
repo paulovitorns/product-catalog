@@ -1,6 +1,6 @@
 package br.com.productcatalog.screens.home
 
-import br.com.productcatalog.domain.CleanQueryStringUseCase
+import br.com.productcatalog.domain.search.CleanQueryStringUseCase
 import br.com.productcatalog.library.state.StateStore
 import br.com.productcatalog.screens.BasePresenter
 import br.com.productcatalog.screens.BaseUi

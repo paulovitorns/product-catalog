@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.productcatalog.R
 import br.com.productcatalog.data.models.ProductResult
 import br.com.productcatalog.data.models.SearchResult
-import br.com.productcatalog.data.search.NoResultFoundException
-import br.com.productcatalog.domain.search.AllItemsLoadedException
+import br.com.productcatalog.data.search.AllItemsLoadedException
+import br.com.productcatalog.data.search.ResultNotFoundException
 import br.com.productcatalog.library.extension.hideKeyboard
 import br.com.productcatalog.library.extension.toast
 import br.com.productcatalog.screens.BaseActivity
@@ -122,7 +122,7 @@ class SearchActivity : BaseActivity<SearchPresenter>(), SearchUi {
 
         if (viewState.stateError != null) {
             when (viewState.stateError) {
-                is NoResultFoundException -> {
+                is ResultNotFoundException -> {
                     showSearchError(viewState.stateError.queryString)
                 }
                 is AllItemsLoadedException -> showAllItemsLoaded()
